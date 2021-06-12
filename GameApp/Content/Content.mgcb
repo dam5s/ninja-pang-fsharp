@@ -13,12 +13,33 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Fonts/PressStart_Regular_17.spritefont
+#begin Fonts/MenuFooter.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
-/build:Fonts/PressStart_Regular_17.spritefont
+/build:Fonts/MenuFooter.spritefont
+
+#begin Fonts/MenuHeader.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/MenuHeader.spritefont
+
+#begin Fonts/MenuItemNotSelected.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/MenuItemNotSelected.spritefont
+
+#begin Fonts/MenuItemSelected.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/MenuItemSelected.spritefont
 
 #begin Images/big-ball.png
 /importer:TextureImporter

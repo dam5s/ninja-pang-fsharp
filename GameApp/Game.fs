@@ -1,14 +1,14 @@
 module Game
 
+open GameApp
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
 
-let canvas = Rectangle (0, 0, 640, 360)
-let multiSampleCount = 1
-
-let flooredInt = floor >> int
-let calculateScale a b = min a b |> ((*) 2.0) |> floor |> (*) 0.5
+let private canvas = Rectangle (0, 0, 640, 360)
+let private multiSampleCount = 1
+let private flooredInt = floor >> int
+let private calculateScale a b = min a b |> ((*) 2.0) |> floor |> (*) 0.5
 
 type GameLoop () as this =
     inherit Game()
@@ -17,8 +17,7 @@ type GameLoop () as this =
 
     let mutable renderTarget = Unchecked.defaultof<RenderTarget2D>
     let mutable spriteBatch = Unchecked.defaultof<SpriteBatch>
-    let mutable font = Unchecked.defaultof<SpriteFont>
-    let mutable recordedKeyboardState: KeyboardState option = None
+    let mutable recordedKbState: KeyboardState option = None
 
     override this.Initialize() =
         this.Content.RootDirectory <- "Content"
@@ -29,34 +28,41 @@ type GameLoop () as this =
         graphics.HardwareModeSwitch <- false
         graphics.PreferredBackBufferWidth <- canvas.Width * 2
         graphics.PreferredBackBufferHeight <- canvas.Height * 2
-        graphics.ApplyChanges()
+        graphics.ApplyChanges() // this should not be necessary here,
+                                // but preferred size is not set without it
+                                // even when I remove *all* the code from the project but the 2 lines above.
 
         base.Initialize()
 
     override this.LoadContent() =
         renderTarget <- new RenderTarget2D(this.GraphicsDevice, canvas.Width, canvas.Height)
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
-        font <- this.Content.Load<SpriteFont>("Fonts/PressStart_Regular_17")
+        GameContent.load this.Content
         ()
 
-    override this.Update _ =
-        let currentState = Keyboard.GetState()
-        let previousState = recordedKeyboardState |> Option.defaultValue currentState
+    override this.Update time =
+        let currentKbState = Keyboard.GetState()
+        let kb = Keyboard.createState currentKbState recordedKbState
 
-        let altIsDown = currentState.IsKeyDown(Keys.LeftAlt) || currentState.IsKeyDown(Keys.RightAlt)
-        let enterWasReleased = currentState.IsKeyUp(Keys.Enter) && previousState.IsKeyDown(Keys.Enter)
+        match GameScreen.get() with
+        | GameScreen.MainMenu -> MainMenuScreen.update kb graphics time
+        | GameScreen.Play -> PlayScreen.update kb graphics time
+        | GameScreen.HighScore -> HighScoreScreen.update kb graphics time
 
-        if altIsDown && enterWasReleased then graphics.ToggleFullScreen ()
-
-        recordedKeyboardState <- Some currentState
+        recordedKbState <- Some currentKbState
         ()
 
-    override this.Draw _ =
+    override this.Draw time =
         this.GraphicsDevice.SetRenderTarget(renderTarget)
         this.GraphicsDevice.Clear Color.CornflowerBlue
 
         spriteBatch.Begin(samplerState = SamplerState.PointClamp)
-        spriteBatch.DrawString(font, "Hello", Vector2.Zero, Color.WhiteSmoke)
+
+        match GameScreen.get() with
+        | GameScreen.MainMenu -> MainMenuScreen.draw spriteBatch time
+        | GameScreen.Play -> PlayScreen.draw spriteBatch time
+        | GameScreen.HighScore -> HighScoreScreen.draw spriteBatch time
+
         spriteBatch.End()
 
         let viewBounds = this.Window.ClientBounds
