@@ -139,25 +139,25 @@
 
 #begin Sounds/game-over.ogg
 /importer:OggImporter
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/game-over.ogg
 
 #begin Sounds/hit.ogg
 /importer:OggImporter
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/hit.ogg
 
 #begin Sounds/pop.ogg
 /importer:OggImporter
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/pop.ogg
 
 #begin Sounds/shoot.ogg
 /importer:OggImporter
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Sounds/shoot.ogg
 

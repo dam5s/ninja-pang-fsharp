@@ -12,27 +12,27 @@ type private KeyboardEvent =
     | Down
     | Enter
 
-let private events (kb: Keyboard.State) =
+let private event (kb: Keyboard.State) =
     let altIsDown = Keyboard.oneIsDown [Keys.LeftAlt; Keys.RightAlt] kb
     let enterWasReleased = Keyboard.wasReleased Keys.Enter kb
 
-    if altIsDown && enterWasReleased
-    then [ToggleFullScreen]
+    if (altIsDown && enterWasReleased) || Keyboard.wasReleased Keys.F11 kb
+    then Some ToggleFullScreen
     else
 
-    if enterWasReleased
-    then [Enter]
+    if enterWasReleased || Keyboard.wasReleased Keys.Space kb
+    then Some Enter
     else
 
     if Keyboard.wasReleased Keys.Up kb
-    then [Up]
+    then Some Up
     else
 
     if Keyboard.wasReleased Keys.Down kb
-    then [Down]
+    then Some Down
     else
 
-    []
+    None
 
 let private up () =
     MainMenuItem.selected <-
@@ -49,16 +49,23 @@ let private down () =
         | Exit -> Play
 
 let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
-    for e in events kb do
-        match e with
-        | ToggleFullScreen -> g.ToggleFullScreen ()
-        | Up -> up ()
-        | Down -> down ()
-        | Enter ->
-            match MainMenuItem.selected with
-            | Play -> GameScreen.set GameScreen.Play
-            | HighScore -> GameScreen.set GameScreen.HighScore
-            | Exit -> System.Environment.Exit 0
+    match event kb with
+    | Some ToggleFullScreen ->
+        g.ToggleFullScreen ()
+    | Some Up ->
+        GameContent.sounds.Shoot()
+        up ()
+    | Some Down ->
+        GameContent.sounds.Shoot()
+        down ()
+    | Some Enter ->
+        GameContent.sounds.Pop()
+        match MainMenuItem.selected with
+        | Play -> GameScreen.set GameScreen.Play
+        | HighScore -> GameScreen.set GameScreen.HighScore
+        | Exit -> System.Environment.Exit 0
+    | None ->
+        ()
 
 let draw (sb: SpriteBatch) (t: GameTime) =
     let x = 32.0f
