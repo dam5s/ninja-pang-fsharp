@@ -10,11 +10,11 @@
   <ItemGroup>
     <Compile Include="Keyboard.fs" />
     <Compile Include="GameContent.fs" />
-    <Compile Include="GameScreen.fs" />
-    <Compile Include="MainMenuItem.fs" />
-    <Compile Include="MainMenuScreen.fs" />
-    <Compile Include="PlayScreen.fs" />
-    <Compile Include="HighScoreScreen.fs" />
+    <Compile Include="GameState.fs" />
+    <Compile Include="Play\PlayScreen.fs" />
+    <Compile Include="Menu\Drawables.fs" />
+    <Compile Include="Menu\MainMenuScreen.fs" />
+    <Compile Include="Menu\HighScoreScreen.fs" />
     <Compile Include="Game.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

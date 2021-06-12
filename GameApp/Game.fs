@@ -1,14 +1,16 @@
 module Game
 
 open GameApp
+open GameApp.Menu
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
 
 let private canvas = Rectangle (0, 0, 640, 360)
 let private multiSampleCount = 1
-let private flooredInt = floor >> int
-let private calculateScale a b = min a b |> ((*) 2.0) |> floor |> (*) 0.5
+
+let inline private flooredInt a = int (floor a)
+let inline private calculateScale a b = min a b |> ((*) 2.0) |> floor |> (*) 0.5
 
 type GameLoop () as this =
     inherit Game()
@@ -43,25 +45,28 @@ type GameLoop () as this =
     override this.Update time =
         let currentKbState = Keyboard.GetState()
         let kb = Keyboard.createState currentKbState recordedKbState
+        let gameState = GameState.get()
 
-        match GameScreen.get() with
-        | GameScreen.MainMenu -> MainMenuScreen.update kb graphics time
-        | GameScreen.Play -> PlayScreen.update kb graphics time
-        | GameScreen.HighScore -> HighScoreScreen.update kb graphics time
+        match gameState.Screen with
+        | GameState.MainMenu -> MainMenuScreen.update kb graphics time
+        | GameState.Play -> PlayScreen.update kb graphics time
+        | GameState.HighScore -> HighScoreScreen.update kb graphics time
 
         recordedKbState <- Some currentKbState
         ()
 
     override this.Draw time =
+        let gameState = GameState.get()
+
         this.GraphicsDevice.SetRenderTarget(renderTarget)
         this.GraphicsDevice.Clear Color.CornflowerBlue
 
         spriteBatch.Begin(samplerState = SamplerState.PointClamp)
 
-        match GameScreen.get() with
-        | GameScreen.MainMenu -> MainMenuScreen.draw spriteBatch time
-        | GameScreen.Play -> PlayScreen.draw spriteBatch time
-        | GameScreen.HighScore -> HighScoreScreen.draw spriteBatch time
+        match gameState.Screen with
+        | GameState.MainMenu -> MainMenuScreen.draw spriteBatch time
+        | GameState.Play -> PlayScreen.draw spriteBatch time
+        | GameState.HighScore -> HighScoreScreen.draw spriteBatch time
 
         spriteBatch.End()
 

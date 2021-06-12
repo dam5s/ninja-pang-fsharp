@@ -1,7 +1,8 @@
 [<RequireQualifiedAccess>]
-module GameApp.MainMenuScreen
+module GameApp.Menu.MainMenuScreen
 
-open GameApp.MainMenuItem
+open GameApp
+open GameApp.Menu.Drawables
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
@@ -34,16 +35,30 @@ let private event (kb: Keyboard.State) =
 
     None
 
+type Item =
+    | Play
+    | HighScore
+    | Exit
+
+let mutable selectedItem =
+    Play
+
+let private itemText item =
+    match item with
+    | Play -> "Play"
+    | HighScore -> "High Score"
+    | Exit -> "Exit"
+
 let private up () =
-    MainMenuItem.selected <-
-        match MainMenuItem.selected with
+    selectedItem <-
+        match selectedItem with
         | Play -> Exit
         | HighScore -> Play
         | Exit -> HighScore
 
 let private down () =
-    MainMenuItem.selected <-
-        match MainMenuItem.selected with
+    selectedItem <-
+        match selectedItem with
         | Play -> HighScore
         | HighScore -> Exit
         | Exit -> Play
@@ -60,9 +75,9 @@ let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
         down ()
     | Some Enter ->
         GameContent.sounds.Pop()
-        match MainMenuItem.selected with
-        | Play -> GameScreen.set GameScreen.Play
-        | HighScore -> GameScreen.set GameScreen.HighScore
+        match selectedItem with
+        | Play -> GameState.changeScreen GameState.Play
+        | HighScore -> GameState.changeScreen GameState.HighScore
         | Exit -> System.Environment.Exit 0
     | None ->
         ()
@@ -71,10 +86,15 @@ let draw (sb: SpriteBatch) (t: GameTime) =
     let x = 32.0f
     let mutable y = 120.0f
 
-    sb.Draw(GameContent.textures.MiniNinjaBg, Vector2.Zero, Color.White)
-    sb.DrawString(GameContent.fonts.MenuHeader, "Ninja Pang", Vector2(x, 40.0f), Color.WhiteSmoke)
-    sb.DrawString(GameContent.fonts.MenuFooter, "by Damien Le Berrigaud", Vector2(400.0f, 320.0f), Color.WhiteSmoke)
+    sb |> MenuBackground.draw
+       |> MenuHeader.draw "Ninja Pang"
+       |> MenuFooter.draw
+       |> ignore
 
     for e in [Play; HighScore; Exit] do
-        MainMenuItem.draw e (Vector2(x, y)) sb
+        let text = itemText e
+        let selected = e = selectedItem
+        let position = Vector2(x, y)
         y <- y + 40.0f
+
+        MenuItem.draw text selected position sb |> ignore

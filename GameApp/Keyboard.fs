@@ -14,5 +14,8 @@ let createState current previous =
 let oneIsDown keys kb =
     keys |> List.exists kb.Current.IsKeyDown
 
+let isDown key kb =
+    kb.Current.IsKeyDown key
+
 let wasReleased key kb =
     kb.Current.IsKeyUp(key) && kb.Previous.IsKeyDown(key)
