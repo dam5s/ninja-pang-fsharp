@@ -5,10 +5,9 @@ open GameApp
 open GameApp.Menu.Drawables
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
-open Microsoft.Xna.Framework.Input
 
 let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
-    if Keyboard.wasReleased Keys.Escape kb
+    if Keyboard.escape kb
     then GameState.changeScreen GameState.MainMenu
 
 let draw (sb: SpriteBatch) (t: GameTime) =

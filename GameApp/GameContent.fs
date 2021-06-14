@@ -26,6 +26,7 @@ type Fonts (c: ContentManager) =
 
 type Textures (c: ContentManager) =
     member this.MiniNinjaBg = c.Load<Texture2D> "Images/mini-ninja-bg"
+    member this.MiniNinja = c.Load<Texture2D> "Images/mini-ninja"
 
 let mutable fonts = Unchecked.defaultof<Fonts>
 let mutable textures = Unchecked.defaultof<Textures>

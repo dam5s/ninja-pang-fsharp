@@ -5,7 +5,6 @@ open GameApp
 open GameApp.Menu.Drawables
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
-open Microsoft.Xna.Framework.Input
 
 type private KeyboardEvent =
     | ToggleFullScreen
@@ -14,22 +13,19 @@ type private KeyboardEvent =
     | Enter
 
 let private event (kb: Keyboard.State) =
-    let altIsDown = Keyboard.oneIsDown [Keys.LeftAlt; Keys.RightAlt] kb
-    let enterWasReleased = Keyboard.wasReleased Keys.Enter kb
-
-    if (altIsDown && enterWasReleased) || Keyboard.wasReleased Keys.F11 kb
+    if Keyboard.toggleFullScreen kb
     then Some ToggleFullScreen
     else
 
-    if enterWasReleased || Keyboard.wasReleased Keys.Space kb
+    if Keyboard.menuSelect kb
     then Some Enter
     else
 
-    if Keyboard.wasReleased Keys.Up kb
+    if Keyboard.menuUp kb
     then Some Up
     else
 
-    if Keyboard.wasReleased Keys.Down kb
+    if Keyboard.menuDown kb
     then Some Down
     else
 

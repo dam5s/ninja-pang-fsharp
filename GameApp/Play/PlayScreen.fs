@@ -1,38 +1,65 @@
 [<RequireQualifiedAccess>]
 module GameApp.PlayScreen
 
+open GameApp.Play.Ball
+open GameApp.Play.Player
+open GameApp.Play.Projectile
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
-open Microsoft.Xna.Framework.Input
 
 type KeyboardEvent =
     | MoveLeft
     | MoveRight
     | Shoot
     | TogglePause
+    | ToggleFullScreen
 
 type State =
     { Score: int
-      Paused: bool }
+      Paused: bool
+      Player: Player
+      Projectiles: Projectile list
+      Balls: Ball list }
 
-let mutable private state =
-    { Score = 0; Paused = false }
+let initialState () =
+    { Score = 0
+      Paused = false
+      Player = Player()
+      Projectiles = []
+      Balls = [] }
 
-let private shouldMoveLeft = Keyboard.oneIsDown [Keys.Left; Keys.A]
-let private shouldMoveRight = Keyboard.oneIsDown [Keys.Right; Keys.D]
-let private shouldShoot = Keyboard.oneIsDown [Keys.Up; Keys.Space; Keys.W; Keys.LeftControl; Keys.RightControl]
-let private shouldTogglePause = Keyboard.oneIsDown [Keys.P; Keys.Escape]
+let mutable private state = initialState ()
+
+let init () =
+    state <- initialState ()
 
 let private events kb =
-    [ if shouldMoveLeft kb then MoveLeft
-      if shouldMoveRight kb then MoveRight
-      if shouldShoot kb then Shoot
-      if shouldTogglePause kb then TogglePause ]
+    [ if Keyboard.movingLeft kb then MoveLeft
+      if Keyboard.movingRight kb then MoveRight
+      if Keyboard.shooting kb then Shoot
+      if Keyboard.togglePause kb then TogglePause
+      if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
 
 let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
+    state.Player.StopMoving()
+
     for e in events kb do
-        //
-    ()
+        match e with
+        | MoveLeft -> state.Player.MoveLeft()
+        | MoveRight -> state.Player.MoveRight()
+        | Shoot -> state <- { state with Projectiles = state.Player.Shoot() :: state.Projectiles }
+        | TogglePause -> state <- { state with Paused = not state.Paused }
+        | ToggleFullScreen -> g.ToggleFullScreen ()
+
+    state.Player.Update t
+    for projectile in state.Projectiles do projectile.Update t
+    for ball in state.Balls do ball.Update t
+
+    // TODO collisions here
 
 let draw (sb: SpriteBatch) (t: GameTime) =
-    sb.DrawString(GameContent.fonts.MenuItemSelected, "Play", Vector2.Zero, Color.WhiteSmoke)
+    sb.Draw(GameContent.textures.MiniNinjaBg, Vector2.Zero, Color.White)
+
+    state.Player.Draw sb
+    for projectile in state.Projectiles do projectile.Draw sb t
+    for ball in state.Balls do ball.Draw sb t
