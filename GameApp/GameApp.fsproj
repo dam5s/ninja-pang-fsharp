@@ -11,6 +11,7 @@
     <Compile Include="Keyboard.fs" />
     <Compile Include="GameContent.fs" />
     <Compile Include="GameState.fs" />
+    <Compile Include="Prelude\GameTime.fs" />
     <Compile Include="Prelude\Animation.fs" />
     <Compile Include="Prelude\AnimationSet.fs" />
     <Compile Include="Play\Ball.fs" />

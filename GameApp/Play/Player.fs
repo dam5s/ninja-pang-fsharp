@@ -1,13 +1,14 @@
 module GameApp.Play.Player
 
 open GameApp
+open GameApp.Prelude.GameTime
 open GameApp.Prelude.AnimProps
 open GameApp.Prelude.Animation
 open GameApp.Play.Projectile
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
-let private horizontalVelocity = 2.0f
+let private horizontalVelocity = 150.0f
 let private screenHeight = 360.0f
 let private screenWidth = 640.0f
 let private floorHeight = 16.0f
@@ -17,6 +18,8 @@ let private playerHeight = 32.0f
 let private positionOverflow = 8.0f
 let private minPosition = - positionOverflow
 let private maxPosition = screenWidth - playerWidth + positionOverflow
+
+type private ms = int
 
 type private PlayerAnim =
     | Idle
@@ -33,8 +36,17 @@ type Player() =
         (RunLeft, Animation.mirroredLoop [5; 6; 7; 8; 9; 10; 11; 12] 14.0)
     ]))
 
+    let mutable projectiles: Projectile list = []
     let mutable position = Vector2(100.0f, screenHeight - floorHeight - playerHeight)
     let mutable velocityX = 0.0f
+
+    let shootingDelay: ms = 200
+    let mutable hasNotShotFor: ms = 10_000
+
+    let newProjectile () =
+        let x = position.X + playerWidth / 2.0f
+        let y = position.Y + playerHeight
+        Projectile (Vector2 (x, y))
 
     member this.MoveLeft () =
         velocityX <- -horizontalVelocity
@@ -49,17 +61,29 @@ type Player() =
         animations.Play Idle
 
     member this.Shoot () =
-        animations.Play Shoot
-        Projectile position
+        let hasNotReachedMax = List.length projectiles < 2
+
+        if hasNotReachedMax && hasNotShotFor > shootingDelay
+        then
+            GameContent.sounds.Shoot()
+            hasNotShotFor <- 0
+            projectiles <- newProjectile() :: projectiles
 
     member this.Update (t: GameTime) =
+        hasNotShotFor <- hasNotShotFor + t.ElapsedGameTime.Milliseconds
+
+        if hasNotShotFor <= 100
+        then animations.Play Shoot
+
         let newX =
-            position.X + velocityX
+            position.X + VelocityPerSecond.forGameTime velocityX t
             |> max minPosition
             |> min maxPosition
 
         position.X <- newX
+        projectiles <- projectiles |> List.filter (fun p -> p.Update(t); p.Alive())
         animations.Update t
 
     member this.Draw (sb: SpriteBatch) =
+        for p in projectiles do (p.Draw sb)
         animations.Draw (sb, position)
