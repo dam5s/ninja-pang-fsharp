@@ -1,4 +1,4 @@
-module Game
+module NinjaPangGame
 
 open GameApp
 open GameApp.Menu
@@ -12,7 +12,7 @@ let private multiSampleCount = 1
 let inline private flooredInt a = int (floor a)
 let inline private calculateScale a b = min a b |> ((*) 2.0) |> floor |> (*) 0.5
 
-type GameLoop () as this =
+type NinjaPangGame () as this =
     inherit Game()
 
     let graphics = new GraphicsDeviceManager(this)
