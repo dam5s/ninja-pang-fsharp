@@ -58,8 +58,10 @@ let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     // TODO collisions here
 
 let draw (sb: SpriteBatch) (t: GameTime) =
-    sb.Draw(GameContent.textures.MiniNinjaBg, Vector2.Zero, Color.White)
+    sb.Draw(GameContent.textures.Backdrop, Vector2.Zero, Color.White)
 
     state.Player.Draw sb
     for projectile in state.Projectiles do projectile.Draw sb t
     for ball in state.Balls do ball.Draw sb t
+
+    sb.Draw(GameContent.textures.Floor, Vector2(0.0f, 360.0f - 16.0f), Color.White)

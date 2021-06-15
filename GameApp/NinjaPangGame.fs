@@ -53,7 +53,6 @@ type NinjaPangGame () as this =
         | GameState.HighScore -> HighScoreScreen.update kb graphics time
 
         recordedKbState <- Some currentKbState
-        ()
 
     override this.Draw time =
         let gameState = GameState.get()
@@ -86,7 +85,6 @@ type NinjaPangGame () as this =
         this.GraphicsDevice.SetRenderTarget(null)
         this.GraphicsDevice.Clear Color.Black
 
-        spriteBatch.Begin(samplerState = SamplerState.PointClamp)
-        spriteBatch.Draw(renderTarget, destination, Color.White)
-        spriteBatch.End()
-        ()
+        spriteBatch.Begin (samplerState = SamplerState.PointClamp)
+        spriteBatch.Draw (renderTarget, destination, Color.White)
+        spriteBatch.End ()

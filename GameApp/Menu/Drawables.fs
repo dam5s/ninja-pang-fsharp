@@ -7,7 +7,7 @@ open Microsoft.Xna.Framework.Graphics
 [<RequireQualifiedAccess>]
 module MenuBackground =
     let draw (sb: SpriteBatch) =
-        sb.Draw(GameContent.textures.MiniNinjaBg, Vector2.Zero, Color.White)
+        sb.Draw(GameContent.textures.Backdrop, Vector2.Zero, Color.White)
         sb
 
 [<RequireQualifiedAccess>]
