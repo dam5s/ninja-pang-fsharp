@@ -52,4 +52,6 @@ type AnimationSet<'T when 'T : comparison>
         let source = Rectangle(width * column, height * row, width, height);
         let destination = Rectangle(int location.X, int location.Y, width, height);
 
-        sb.Draw(texture, destination, source, Color.White)
+        if currentAnimation.Mirrored
+        then sb.Draw (texture, destination, source, Color.White, 0.0f, Vector2.Zero, SpriteEffects.FlipHorizontally, 0.0f)
+        else sb.Draw (texture, destination, source, Color.White)

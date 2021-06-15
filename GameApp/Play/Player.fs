@@ -21,8 +21,8 @@ type Player() =
     let animations = AnimationSet(GameContent.textures.MiniNinja, 1, 13, Idle, Map(seq [
         (Idle, Animation.loop [0; 1; 2; 3] 2.0)
         (Shoot, Animation.interrupt [4] 12.0)
-        (RunRight, Animation.loop [5; 6; 7; 8; 9; 10; 11; 12] 12.0)
-        (RunLeft, Animation.mirroredLoop [5; 6; 7; 8; 9; 10; 11; 12] 12.0)
+        (RunRight, Animation.loop [5; 6; 7; 8; 9; 10; 11; 12] 14.0)
+        (RunLeft, Animation.mirroredLoop [5; 6; 7; 8; 9; 10; 11; 12] 14.0)
     ]))
 
     let mutable position = Vector2(100.0f, 300.0f)
