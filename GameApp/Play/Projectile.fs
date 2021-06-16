@@ -1,7 +1,6 @@
 module GameApp.Play.Projectile
 
 open GameApp
-open GameApp.Prelude.GameTime
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 

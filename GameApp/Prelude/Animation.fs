@@ -1,4 +1,5 @@
-module GameApp.Prelude.AnimProps
+[<AutoOpen>]
+module Animation
 
 type Animation =
     { Frames: int list

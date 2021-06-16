@@ -13,13 +13,13 @@ module MenuBackground =
 [<RequireQualifiedAccess>]
 module MenuHeader =
     let draw (text: string) (sb: SpriteBatch) =
-        sb.DrawString(GameContent.fonts.MenuHeader, text, Vector2(32.0f, 40.0f), Color.WhiteSmoke)
+        sb.DrawString(GameContent.fonts.MenuHeader, text, vec2 32.0f 40.0f, Color.WhiteSmoke)
         sb
 
 [<RequireQualifiedAccess>]
 module MenuFooter =
     let draw (sb: SpriteBatch) =
-        sb.DrawString(GameContent.fonts.MenuFooter, "by Damien Le Berrigaud", Vector2(400.0f, 320.0f), Color.WhiteSmoke)
+        sb.DrawString(GameContent.fonts.MenuFooter, "by Damien Le Berrigaud", vec2 400.0f 320.0f, Color.WhiteSmoke)
         sb
 
 [<RequireQualifiedAccess>]

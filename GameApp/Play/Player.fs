@@ -1,9 +1,6 @@
 module GameApp.Play.Player
 
 open GameApp
-open GameApp.Prelude.GameTime
-open GameApp.Prelude.AnimProps
-open GameApp.Prelude.Animation
 open GameApp.Play.Projectile
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
@@ -29,6 +26,8 @@ type private PlayerAnim =
 
 type Player() =
 
+    let shootingDelay: ms = 200
+
     let animations = AnimationSet(GameContent.textures.Ninja, 1, 13, Idle, Map(seq [
         (Idle, Animation.loop [0; 1; 2; 3] 2.0)
         (Shoot, Animation.interrupt [4] 1.0)
@@ -37,11 +36,10 @@ type Player() =
     ]))
 
     let mutable projectiles: Projectile list = []
-    let mutable position = Vector2(100.0f, screenHeight - floorHeight - playerHeight)
+    let mutable position = vec2 100.0f (screenHeight - floorHeight - playerHeight)
     let mutable velocityX = 0.0f
 
-    let shootingDelay: ms = 200
-    let mutable hasNotShotFor: ms = 10_000
+    let mutable hasNotShotFor: ms = shootingDelay + 1
 
     let newProjectile () =
         let x = position.X + playerWidth / 2.0f

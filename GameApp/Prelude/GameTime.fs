@@ -1,4 +1,5 @@
-module GameApp.Prelude.GameTime
+[<AutoOpen>]
+module GameTime
 
 open Microsoft.Xna.Framework
 

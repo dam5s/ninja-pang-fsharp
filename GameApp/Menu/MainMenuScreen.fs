@@ -90,7 +90,7 @@ let draw (sb: SpriteBatch) (t: GameTime) =
     for e in [Play; HighScore; Exit] do
         let text = itemText e
         let selected = e = selectedItem
-        let position = Vector2(x, y)
+        let position = vec2 x y
         y <- y + 40.0f
 
         MenuItem.draw text selected position sb |> ignore

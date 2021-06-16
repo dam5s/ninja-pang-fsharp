@@ -3,7 +3,10 @@ module GameApp.Play.Ball
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
-type Ball() =
+type Ball (p: Vector2) =
+
+    let mutable position = p
+
     member this.Update (t: GameTime) =
         ()
 

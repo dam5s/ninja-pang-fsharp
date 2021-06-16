@@ -1,8 +1,8 @@
-module GameApp.Prelude.Animation
+[<AutoOpen>]
+module AnimationSet
 
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
-open GameApp.Prelude.AnimProps
 
 type AnimationSet<'T when 'T : comparison>
     (texture: Texture2D,

@@ -23,7 +23,7 @@ let initialState () =
     { Score = 0
       Paused = false
       Player = Player()
-      Balls = [] }
+      Balls = [ Ball(vec2 100.0f 100.0f) ] }
 
 let mutable private state = initialState ()
 
@@ -57,4 +57,4 @@ let draw (sb: SpriteBatch) (t: GameTime) =
     state.Player.Draw sb
     for ball in state.Balls do ball.Draw sb t
 
-    sb.Draw(GameContent.textures.Floor, Vector2(0.0f, 360.0f - 16.0f), Color.White)
+    sb.Draw(GameContent.textures.Floor, vec2 0.0f (360.0f - 16.0f), Color.White)
