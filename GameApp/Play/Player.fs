@@ -5,83 +5,106 @@ open GameApp.Play.Projectile
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
-let private horizontalVelocity = 150.0f
-let private screenHeight = 360.0f
-let private screenWidth = 640.0f
-let private floorHeight = 16.0f
-let private playerWidth = 32.0f
-let private playerHeight = 32.0f
-
-let private positionOverflow = 8.0f
-let private minPosition = - positionOverflow
-let private maxPosition = screenWidth - playerWidth + positionOverflow
-
-type private ms = int
+module private Conf =
+    let horizontalVelocity = 150.0f
+    let screenHeight = 360.0f
+    let screenWidth = 640.0f
+    let floorHeight = 16.0f
+    let playerWidth = 32.0f
+    let playerHeight = 32.0f
+    let positionOverflow = 8.0f
+    let minPosition = - positionOverflow
+    let maxPosition = screenWidth - playerWidth + positionOverflow
+    let shootingDelayInMs = 200
 
 type private PlayerAnim =
     | Idle
-    | Shoot
+    | Shooting
     | RunRight
     | RunLeft
 
-type Player() =
+type private State =
+    { Projectiles: Projectile list
+      Position: Vector2
+      VelocityX: float32
+      HasNotShotFor: int }
 
-    let shootingDelay: ms = 200
+let private init () =
+    { Projectiles = []
+      Position = vec2 100.0f (Conf.screenHeight - Conf.floorHeight - Conf.playerHeight)
+      VelocityX = 0.0f
+      HasNotShotFor = Conf.shootingDelayInMs + 1 }
+
+type Action =
+    | MoveLeft
+    | MoveRight
+    | StopMoving
+    | Shoot
+    | UpdateHasNotShotFor of GameTime
+    | UpdatePosition of GameTime
+
+let private shoot state =
+    let hasNotReachedMax = List.length state.Projectiles < 2
+
+    if hasNotReachedMax && state.HasNotShotFor > Conf.shootingDelayInMs
+    then
+        let x = state.Position.X + Conf.playerWidth / 2.0f
+        let y = state.Position.Y + Conf.playerHeight
+
+        { state with HasNotShotFor = 0
+                     Projectiles = Projectile (vec2 x y) :: state.Projectiles },
+        PlaySound GameContent.sounds.Shoot
+    else
+        state, NoEffect
+
+let private updateHasNotShotFor state (time: GameTime) =
+    let elapsed = time.ElapsedGameTime.Milliseconds
+    let newState = { state with HasNotShotFor = state.HasNotShotFor + elapsed }
+
+    if newState.HasNotShotFor <= 100
+    then newState, SetAnimation Shooting
+    else newState, NoEffect
+
+let private updatePosition state (time: GameTime) =
+    let newX =
+        state.Position.X + VelocityPerSecond.forGameTime state.VelocityX time
+        |> max Conf.minPosition
+        |> min Conf.maxPosition
+    { state with Position = Vec2.withX newX state.Position }, NoEffect
+
+let private update action state: State * Effect<PlayerAnim> =
+    match action with
+    | MoveLeft -> { state with VelocityX = -Conf.horizontalVelocity }, SetAnimation RunLeft
+    | MoveRight -> { state with VelocityX = Conf.horizontalVelocity }, SetAnimation RunRight
+    | StopMoving -> { state with VelocityX = 0.0f }, SetAnimation Idle
+    | Shoot -> shoot state
+    | UpdateHasNotShotFor time -> updateHasNotShotFor state time
+    | UpdatePosition time -> updatePosition state time
+
+type Player() =
 
     let animations = AnimationSet(GameContent.textures.Ninja, 1, 13, Idle, Map(seq [
         (Idle, Animation.loop [0; 1; 2; 3] 2.0)
-        (Shoot, Animation.interrupt [4] 1.0)
+        (Shooting, Animation.interrupt [4] 1.0)
         (RunRight, Animation.loop [5; 6; 7; 8; 9; 10; 11; 12] 14.0)
         (RunLeft, Animation.mirroredLoop [5; 6; 7; 8; 9; 10; 11; 12] 14.0)
     ]))
 
-    let mutable projectiles: Projectile list = []
-    let mutable position = vec2 100.0f (screenHeight - floorHeight - playerHeight)
-    let mutable velocityX = 0.0f
+    let mutable state = init ()
 
-    let mutable hasNotShotFor: ms = shootingDelay + 1
-
-    let newProjectile () =
-        let x = position.X + playerWidth / 2.0f
-        let y = position.Y + playerHeight
-        Projectile (Vector2 (x, y))
-
-    member this.MoveLeft () =
-        velocityX <- -horizontalVelocity
-        animations.Play RunLeft
-
-    member this.MoveRight () =
-        velocityX <- horizontalVelocity
-        animations.Play RunRight
-
-    member this.StopMoving () =
-        velocityX <- 0.0f
-        animations.Play Idle
-
-    member this.Shoot () =
-        let hasNotReachedMax = List.length projectiles < 2
-
-        if hasNotReachedMax && hasNotShotFor > shootingDelay
-        then
-            GameContent.sounds.Shoot()
-            hasNotShotFor <- 0
-            projectiles <- newProjectile() :: projectiles
+    member this.Dispatch action =
+        let newState, effect = update action state
+        state <- newState
+        Effect.execute animations effect
 
     member this.Update (t: GameTime) =
-        hasNotShotFor <- hasNotShotFor + t.ElapsedGameTime.Milliseconds
+        this.Dispatch (UpdateHasNotShotFor t)
+        this.Dispatch (UpdatePosition t)
 
-        if hasNotShotFor <= 100
-        then animations.Play Shoot
-
-        let newX =
-            position.X + VelocityPerSecond.forGameTime velocityX t
-            |> max minPosition
-            |> min maxPosition
-
-        position.X <- newX
-        projectiles <- projectiles |> List.filter (fun p -> p.Update(t); p.Alive())
+        let updatedProjectiles = state.Projectiles |> List.filter (fun p -> p.Update(t); p.Alive())
+        state <- { state with Projectiles = updatedProjectiles }
         animations.Update t
 
     member this.Draw (sb: SpriteBatch) =
-        for p in projectiles do (p.Draw sb)
-        animations.Draw (sb, position)
+        for p in state.Projectiles do (p.Draw sb)
+        animations.Draw (sb, state.Position)

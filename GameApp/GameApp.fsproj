@@ -15,6 +15,7 @@
     <Compile Include="Prelude\GameTime.fs" />
     <Compile Include="Prelude\Animation.fs" />
     <Compile Include="Prelude\AnimationSet.fs" />
+    <Compile Include="Prelude\Effect.fs" />
     <Compile Include="Play\Ball.fs" />
     <Compile Include="Play\Projectile.fs" />
     <Compile Include="Play\Player.fs" />

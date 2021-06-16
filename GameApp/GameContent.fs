@@ -6,17 +6,10 @@ open Microsoft.Xna.Framework.Content
 open Microsoft.Xna.Framework.Graphics
 
 type Sounds (c: ContentManager) =
-    let gameOver = c.Load<SoundEffect> "Sounds/game-over"
-    let hit = c.Load<SoundEffect> "Sounds/hit"
-    let pop = c.Load<SoundEffect> "Sounds/pop"
-    let shoot = c.Load<SoundEffect> "Sounds/shoot"
-
-    let play (sound: SoundEffect) = sound.Play() |> ignore
-
-    member this.GameOver() = play gameOver
-    member this.Hit() = play hit
-    member this.Pop() = play pop
-    member this.Shoot() = play shoot
+    member this.GameOver = c.Load<SoundEffect> "Sounds/game-over"
+    member this.Hit = c.Load<SoundEffect> "Sounds/hit"
+    member this.Pop = c.Load<SoundEffect> "Sounds/pop"
+    member this.Shoot = c.Load<SoundEffect> "Sounds/shoot"
 
 type Fonts (c: ContentManager) =
     member this.MenuItemNotSelected = c.Load<SpriteFont> "Fonts/MenuItemNotSelected"

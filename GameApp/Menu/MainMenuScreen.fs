@@ -64,13 +64,13 @@ let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     | Some ToggleFullScreen ->
         g.ToggleFullScreen ()
     | Some Up ->
-        GameContent.sounds.Shoot()
+        Effect.play GameContent.sounds.Shoot
         up ()
     | Some Down ->
-        GameContent.sounds.Shoot()
+        Effect.play GameContent.sounds.Shoot
         down ()
     | Some Enter ->
-        GameContent.sounds.Pop()
+        Effect.play GameContent.sounds.Pop
         match selectedItem with
         | Play -> GameState.changeScreen GameState.Play
         | HighScore -> GameState.changeScreen GameState.HighScore

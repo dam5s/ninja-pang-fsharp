@@ -7,9 +7,9 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
 type KeyboardEvent =
-    | MoveLeft
-    | MoveRight
-    | Shoot
+    | PlayerMoveLeft
+    | PlayerMoveRight
+    | PlayerShoot
     | TogglePause
     | ToggleFullScreen
 
@@ -31,20 +31,20 @@ let init () =
     state <- initialState ()
 
 let private events kb =
-    [ if Keyboard.movingLeft kb then MoveLeft
-      if Keyboard.movingRight kb then MoveRight
-      if Keyboard.shooting kb then Shoot
+    [ if Keyboard.movingLeft kb then PlayerMoveLeft
+      if Keyboard.movingRight kb then PlayerMoveRight
+      if Keyboard.shooting kb then PlayerShoot
       if Keyboard.togglePause kb then TogglePause
       if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
 
 let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
-    state.Player.StopMoving()
+    state.Player.Dispatch(StopMoving)
 
     for e in events kb do
         match e with
-        | MoveLeft -> state.Player.MoveLeft()
-        | MoveRight -> state.Player.MoveRight()
-        | Shoot -> state.Player.Shoot()
+        | PlayerMoveLeft -> state.Player.Dispatch(MoveLeft)
+        | PlayerMoveRight -> state.Player.Dispatch(MoveRight)
+        | PlayerShoot -> state.Player.Dispatch(Shoot)
         | TogglePause -> state <- { state with Paused = not state.Paused }
         | ToggleFullScreen -> g.ToggleFullScreen()
 
