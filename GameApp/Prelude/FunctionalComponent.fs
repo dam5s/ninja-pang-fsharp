@@ -13,17 +13,18 @@ type Update<'state, 'event, 'anim> = FunctionalEvent<'event> -> 'state -> 'state
 type Draw<'state, 'anim when 'anim : comparison> = 'state -> AnimationSet<'anim> -> SpriteBatch -> unit
 
 module UpdateComposition =
-    let combineEffects e1 e2 =
+    let private combineEffects e1 e2 =
         match e1, e2 with
         | NoEffect, a -> a
         | a, NoEffect -> a
         | a, b -> Multiple (a, b)
 
     let compose
-        (f: 'state -> GameTime -> 'state * Effect<'a>)
-        (g: 'state -> GameTime -> 'state * Effect<'a>) (s: 'state) (t: GameTime) =
-        let state1, effect1 = f s t
-        let state2, effect2 = g state1 t
+        (f: GameTime -> 'state -> 'state * Effect<'a>)
+        (g: GameTime -> 'state -> 'state * Effect<'a>)
+        (t: GameTime) (s: 'state) =
+        let state1, effect1 = f t s
+        let state2, effect2 = g t state1
         state2, combineEffects effect1 effect2
 
     module Operators =

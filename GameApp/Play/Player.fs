@@ -54,7 +54,7 @@ let private shoot state =
     else
         state, NoEffect
 
-let private updateTimeSinceLastShot state (time: GameTime) =
+let private updateTimeSinceLastShot (time: GameTime) state =
     let elapsed = time.ElapsedGameTime.Milliseconds
     let newState = { state with TimeSinceLastShot = state.TimeSinceLastShot + elapsed }
 
@@ -62,14 +62,14 @@ let private updateTimeSinceLastShot state (time: GameTime) =
     then newState, SetAnimation Shooting
     else newState, NoEffect
 
-let private updatePosition state (time: GameTime) =
+let private updatePosition (time: GameTime) state =
     let newX =
         state.Position.X + VelocityPerSecond.forGameTime state.VelocityX time
         |> max Conf.minPosition
         |> min Conf.maxPosition
     { state with Position = Vec2.withX newX state.Position }, NoEffect
 
-let private updateProjectiles state (time: GameTime) =
+let private updateProjectiles (time: GameTime) state =
     let updatedProjectiles = state.Projectiles |> List.filter (fun p -> p.Update(time); p.Alive())
     { state with Projectiles = updatedProjectiles }, NoEffect
 
@@ -86,7 +86,7 @@ let private update event state: State * Effect<PlayerAnim> =
     | Event MoveRight -> { state with VelocityX = Conf.horizontalVelocity }, SetAnimation RunRight
     | Event StopMoving -> { state with VelocityX = 0.0f }, SetAnimation Idle
     | Event Shoot -> shoot state
-    | OnUpdate time -> onUpdate state time
+    | OnUpdate time -> onUpdate time state
 
 let private  animations () = AnimationSet(GameContent.textures.Ninja, 1, 13, Idle, Map(seq [
     (Idle, Animation.loop [0; 1; 2; 3] 2.0)
