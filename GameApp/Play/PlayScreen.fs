@@ -52,7 +52,7 @@ let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     for ball in state.Balls do ball.Update t
 
 let draw (sb: SpriteBatch) (t: GameTime) =
-    sb.Draw(GameContent.textures.Backdrop, Vector2.Zero, Color.White)
+    sb.Draw(GameContent.textures.Backdrop, Vec2.zero, Color.White)
 
     state.Player.Draw sb
     for ball in state.Balls do ball.Draw sb t
