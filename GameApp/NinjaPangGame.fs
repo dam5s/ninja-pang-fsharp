@@ -9,7 +9,6 @@ open Microsoft.Xna.Framework.Input
 let private canvas = Rectangle (0, 0, 640, 360)
 let private multiSampleCount = 1
 
-let inline private flooredInt a = int (floor a)
 let inline private calculateScale a b = min a b |> ((*) 2.0) |> floor |> (*) 0.5
 
 type NinjaPangGame () as this =

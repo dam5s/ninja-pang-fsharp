@@ -20,8 +20,11 @@ let private isDown key kb =
 let private wasReleased key kb =
     kb.Current.IsKeyUp(key) && kb.Previous.IsKeyDown(key)
 
+let private oneWasReleased keys kb =
+    keys |> List.exists (fun k -> wasReleased k kb)
+
 let escape = wasReleased Keys.Escape
-let togglePause = oneIsDown [Keys.P; Keys.Escape]
+let togglePause = oneWasReleased [Keys.P; Keys.Escape]
 let toggleFullScreen kb =
     let altIsDown = oneIsDown [Keys.LeftAlt; Keys.RightAlt] kb
     let enterWasReleased = wasReleased Keys.Enter kb

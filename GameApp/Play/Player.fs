@@ -48,8 +48,9 @@ let private shoot state =
         let x = state.Position.X + Conf.playerWidth / 2.0f
         let y = state.Position.Y + Conf.playerHeight
 
-        { state with TimeSinceLastShot = 0
-                     Projectiles = Projectile (vec2 x y) :: state.Projectiles },
+        { state with
+            TimeSinceLastShot = 0
+            Projectiles = Projectile (vec2 x y) :: state.Projectiles },
         PlaySound GameContent.sounds.Shoot
     else
         state, NoEffect

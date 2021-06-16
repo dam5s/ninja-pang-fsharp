@@ -3,7 +3,8 @@ module Prelude
 
 open Microsoft.Xna.Framework
 
-let vec2 x y = Vector2 (x, y)
+let inline flooredInt a = int (floor a)
+let inline vec2 x y = Vector2 (x, y)
 
 [<RequireQualifiedAccess>]
 module Vec2 =
