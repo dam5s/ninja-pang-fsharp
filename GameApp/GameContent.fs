@@ -22,6 +22,9 @@ type Textures (c: ContentManager) =
     member this.Ninja = c.Load<Texture2D> "Images/mini-ninja"
     member this.Floor = c.Load<Texture2D> "Images/mini-ninja-floor"
     member this.Grappling = c.Load<Texture2D> "Images/grappling"
+    member this.BigBall = c.Load<Texture2D> "Images/big-ball"
+    member this.MediumBall = c.Load<Texture2D> "Images/medium-ball"
+    member this.SmallBall = c.Load<Texture2D> "Images/small-ball"
 
 let mutable fonts = Unchecked.defaultof<Fonts>
 let mutable textures = Unchecked.defaultof<Textures>

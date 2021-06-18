@@ -17,3 +17,6 @@ module VelocityPerSecond =
     /// </param>
     let forGameTime (v: float32) (t: GameTime) =
         v * (float32 t.ElapsedGameTime.Milliseconds / 1_000.0f)
+
+    let vec2ForGameTime (v: Vector2) (t: GameTime) =
+        v * (float32 t.ElapsedGameTime.Milliseconds / 1_000.0f)

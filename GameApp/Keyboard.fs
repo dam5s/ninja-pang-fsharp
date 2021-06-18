@@ -37,4 +37,4 @@ let menuDown kb = wasReleased Keys.Down kb || wasReleased Keys.S kb
 
 let movingLeft = oneIsDown [Keys.Left; Keys.A]
 let movingRight = oneIsDown [Keys.Right; Keys.D]
-let shooting = oneIsDown [Keys.Up; Keys.Space; Keys.W; Keys.LeftControl; Keys.RightControl]
+let shooting = oneIsDown [Keys.Up; Keys.Space; Keys.W; Keys.Z; Keys.LeftControl; Keys.RightControl]
