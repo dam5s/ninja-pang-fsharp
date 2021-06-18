@@ -18,8 +18,7 @@ type Config =
     { GraphicsSize: float32
       AccelerationY: float32
       MaxVelocityY: float32
-      VelocityX: float32
-      Score: int }
+      VelocityX: float32 }
 
 type State =
     { Size: Size
@@ -45,22 +44,19 @@ module private Conf =
         { GraphicsSize = 36.0f
           AccelerationY = gravity
           MaxVelocityY = 250.0f
-          VelocityX = 20.0f
-          Score = 50 }
+          VelocityX = 20.0f }
 
     let private mediumConfig =
         { GraphicsSize = 20.0f
           AccelerationY = gravity * 1.5f
           MaxVelocityY = 250.0f
-          VelocityX = 40.0f
-          Score = 100 }
+          VelocityX = 40.0f }
 
     let private smallConfig =
         { GraphicsSize = 12.0f
           AccelerationY = gravity * 2.0f
           MaxVelocityY = 250.0f
-          VelocityX = 60.0f
-          Score = 200 }
+          VelocityX = 60.0f }
 
     let get size =
         match size with

@@ -41,6 +41,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/MenuItemSelected.spritefont
 
+#begin Fonts/Score.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Score.spritefont
+
 #begin Images/big-ball.png
 /importer:TextureImporter
 /processor:TextureProcessor

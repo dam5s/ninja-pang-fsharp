@@ -77,25 +77,43 @@ module Collisions =
     let private collideProjectileWithBalls (balls: Ball list) (p: Projectile) =
         let projectileBox = p.GetState().Box
 
-        balls
-        |> List.collect (fun b ->
-            let ballState = b.GetState()
+        if projectileBox.Origin.Y <= 0.0f
+        then p.Kill()
 
-            if b.Alive() && p.Alive() && Collision.aabbCheck projectileBox ballState.Box
-            then
-                b.Kill()
-                p.Kill()
-                Effect.play GameContent.sounds.Pop
-                splitBall ballState
-            else
-                []
-        )
+        if p.Alive()
+        then
+            balls
+            |> List.collect (fun b ->
+                let ballState = b.GetState()
+
+                if b.Alive() && p.Alive() && Collision.aabbCheck projectileBox ballState.Box
+                then
+                    b.Kill()
+                    p.Kill()
+                    Effect.play GameContent.sounds.Pop
+                    splitBall ballState
+                else
+                    []
+            )
+        else
+            []
+
+    let inline private ballIsAlive (b: Ball) = b.Alive()
+    let inline private ballPoints (b: Ball) =
+        match b.GetState().Size with
+        | Big -> 50
+        | Medium -> 100
+        | Small -> 200
 
     let applyAll (state: State) =
         let newBalls =
             state.Projectiles
             |> List.collect (collideProjectileWithBalls state.Balls)
 
+        let remainingBalls, destroyedBalls = List.partition ballIsAlive state.Balls
+        let points = destroyedBalls |> List.sumBy ballPoints
+
         { state with
             Projectiles = List.filter (fun x -> x.Alive()) state.Projectiles
-            Balls = List.filter (fun x -> x.Alive()) state.Balls @ newBalls }
+            Balls = remainingBalls @ newBalls
+            Score = state.Score + points }

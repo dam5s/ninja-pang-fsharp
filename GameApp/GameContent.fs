@@ -16,6 +16,7 @@ type Fonts (c: ContentManager) =
     member this.MenuItemSelected = c.Load<SpriteFont> "Fonts/MenuItemSelected"
     member this.MenuFooter = c.Load<SpriteFont> "Fonts/MenuFooter"
     member this.MenuHeader = c.Load<SpriteFont> "Fonts/MenuHeader"
+    member this.Score = c.Load<SpriteFont> "Fonts/Score"
 
 type Textures (c: ContentManager) =
     member this.Backdrop = c.Load<Texture2D> "Images/mini-ninja-bg"

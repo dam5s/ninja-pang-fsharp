@@ -8,11 +8,7 @@ open Microsoft.Xna.Framework.Graphics
 
 module private Conf =
     let screenHeight = 360.0f
-    let screenWidth = 640.0f
     let floorHeight = 16.0f
-    let shootingDelayInMs = 200
-    let playerWidth = 32.0f
-    let playerHeight = 32.0f
 
 type KeyboardEvent =
     | PlayerMoveLeft
@@ -72,14 +68,7 @@ let draw (sb: SpriteBatch) (t: GameTime) =
 
     sb.Draw(GameContent.textures.Floor, vec2 0.0f (Conf.screenHeight - Conf.floorHeight), Color.White)
 
+    HUD.draw state sb
+
     if state.Paused
-    then
-        let width = int Conf.screenWidth
-        let height = int Conf.screenHeight
-        let color = Color(Color.Black, 0.5f)
-        let data = Array.create (width * height) color
-
-        let overlay = new Texture2D(sb.GraphicsDevice, width, height)
-        overlay.SetData(data)
-
-        sb.Draw(overlay, Vec2.zero, Color.White)
+    then HUD.drawPausedOverlay sb

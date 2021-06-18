@@ -22,6 +22,7 @@
     <Compile Include="Play\Projectile.fs" />
     <Compile Include="Play\Player.fs" />
     <Compile Include="Play\PlayState.fs" />
+    <Compile Include="Play\HUD.fs" />
     <Compile Include="Play\PlayScreen.fs" />
     <Compile Include="Menu\Drawables.fs" />
     <Compile Include="Menu\MainMenuScreen.fs" />
