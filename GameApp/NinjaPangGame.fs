@@ -2,6 +2,7 @@ module NinjaPangGame
 
 open GameApp
 open GameApp.Menu
+open GameApp.Play
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input

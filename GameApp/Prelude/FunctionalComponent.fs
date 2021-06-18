@@ -30,24 +30,43 @@ module UpdateComposition =
     module Operators =
         let (>->) = compose
 
+type KillableComponent() =
+    let mutable alive = true
+
+    member this.Kill () =
+        alive <- false
+
+    member this.Alive () =
+        alive
+
 type FunctionalComponent<'s, 'e, 'a when 'a : comparison>(init: Init<'s>,
                                                           update: Update<'s, 'e, 'a>,
                                                           draw: Draw<'s, 'a>,
                                                           anims: unit -> AnimationSet<'a>) =
+    inherit KillableComponent()
 
     let animations = anims ()
     let mutable state = init ()
 
+    member this.GetState () =
+        state
+
     member this.Dispatch event =
-        let newState, effect = update (Event event) state
-        state <- newState
-        Effect.execute animations effect
+        if this.Alive()
+        then
+            let newState, effect = update (Event event) state
+            state <- newState
+            Effect.execute animations effect
 
     member this.Update (t: GameTime) =
-        let newState, effect = update (OnUpdate t) state
-        state <- newState
-        Effect.execute animations effect
-        animations.Update t
+        if this.Alive()
+        then
+            let newState, effect = update (OnUpdate t) state
+            state <- newState
+            Effect.execute animations effect
+            animations.Update t
 
     member this.Draw (sb: SpriteBatch) =
-        draw state animations sb
+        if this.Alive()
+        then
+            draw state animations sb

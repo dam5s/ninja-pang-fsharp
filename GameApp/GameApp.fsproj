@@ -8,18 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Keyboard.fs" />
-    <Compile Include="GameContent.fs" />
-    <Compile Include="GameState.fs" />
     <Compile Include="Prelude\Prelude.fs" />
     <Compile Include="Prelude\GameTime.fs" />
     <Compile Include="Prelude\Animation.fs" />
     <Compile Include="Prelude\AnimationSet.fs" />
     <Compile Include="Prelude\Effect.fs" />
     <Compile Include="Prelude\FunctionalComponent.fs" />
+    <Compile Include="Prelude\Collisions.fs" />
+    <Compile Include="Keyboard.fs" />
+    <Compile Include="GameContent.fs" />
+    <Compile Include="GameState.fs" />
     <Compile Include="Play\Ball.fs" />
     <Compile Include="Play\Projectile.fs" />
     <Compile Include="Play\Player.fs" />
+    <Compile Include="Play\PlayState.fs" />
     <Compile Include="Play\PlayScreen.fs" />
     <Compile Include="Menu\Drawables.fs" />
     <Compile Include="Menu\MainMenuScreen.fs" />

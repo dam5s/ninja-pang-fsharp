@@ -1,6 +1,7 @@
 module GameApp.Play.Ball
 
 open GameApp
+open GameApp.Prelude.Collisions
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
@@ -9,18 +10,22 @@ type Size =
     | Medium
     | Small
 
+type Direction =
+    | Left
+    | Right
+
 type Config =
-    { HitBoxSize: float32
-      GraphicsSize: float32
+    { GraphicsSize: float32
       AccelerationY: float32
       MaxVelocityY: float32
-      VelocityY: float32
+      VelocityX: float32
       Score: int }
 
 type State =
     { Size: Size
       Velocity: Vector2
-      Position: Vector2 }
+      Position: Vector2
+      Box: Box }
 
 type Event =
     | None
@@ -37,27 +42,24 @@ module private Conf =
     let floorY = screenHeight - floorHeight
 
     let private bigConfig =
-        { HitBoxSize = 32.0f
-          GraphicsSize = 36.0f
+        { GraphicsSize = 36.0f
           AccelerationY = gravity
           MaxVelocityY = 250.0f
-          VelocityY = 20.0f
+          VelocityX = 20.0f
           Score = 50 }
 
     let private mediumConfig =
-        { HitBoxSize = 16.0f
-          GraphicsSize = 20.0f
+        { GraphicsSize = 20.0f
           AccelerationY = gravity * 1.5f
           MaxVelocityY = 250.0f
-          VelocityY = 40.0f
+          VelocityX = 40.0f
           Score = 100 }
 
     let private smallConfig =
-        { HitBoxSize = 8.0f
-          GraphicsSize = 12.0f
+        { GraphicsSize = 12.0f
           AccelerationY = gravity * 2.0f
           MaxVelocityY = 250.0f
-          VelocityY = 60.0f
+          VelocityX = 60.0f
           Score = 200 }
 
     let get size =
@@ -66,16 +68,23 @@ module private Conf =
         | Medium -> mediumConfig
         | Small -> smallConfig
 
-let private init size position () =
+let inline private boxOrigin position =
+    Vec2.offset 2.0f position
+
+let private init size dir position () =
     let conf = Conf.get size
+    let boxSize = conf.GraphicsSize - 4.0f
+    let box = { Origin = boxOrigin position; Width = boxSize; Height = boxSize }
+    let velocityX = match dir with | Left -> - conf.VelocityX | Right -> conf.VelocityX
 
     { Size = size
       Position = position
-      Velocity = vec2 conf.VelocityY (- Conf.gravity / 2.0f)  }
+      Velocity = vec2 velocityX (- Conf.gravity / 2.0f)
+      Box = box }
 
 let private bounce conf time state =
     let falling = state.Velocity.Y > 0.0f
-    let touchingFloor = state.Position.Y + conf.HitBoxSize >= Conf.floorY
+    let touchingFloor = state.Box.Origin.Y + state.Box.Height >= Conf.floorY
 
     if falling && touchingFloor
     then { state with Velocity = Vec2.withY -Conf.gravity state.Velocity }, SetAnimation Bounce
@@ -84,8 +93,8 @@ let private bounce conf time state =
 let private touchWalls conf time state =
     let goingLeft = state.Velocity.X < 0.0f
     let goingRight = not goingLeft
-    let touchingLeftWall = state.Position.X <= 0.0f
-    let touchingRightWall = state.Position.X + conf.HitBoxSize >= Conf.screenWidth
+    let touchingLeftWall = state.Box.Origin.X <= 0.0f
+    let touchingRightWall = state.Box.Origin.X + state.Box.Width >= Conf.screenWidth
 
     let newX =
         if goingLeft && touchingLeftWall
@@ -104,8 +113,9 @@ let private updatePosition (conf: Config) (time: GameTime) (state: State) =
 
     let newVelocity = Vec2.withY newVelocityY state.Velocity
     let newPosition = state.Position + VelocityPerSecond.vec2ForGameTime newVelocity time
+    let newBox = { state.Box with Origin = boxOrigin newPosition }
 
-    { state with Position = newPosition; Velocity = newVelocity }, NoEffect
+    { state with Position = newPosition; Velocity = newVelocity; Box = newBox }, NoEffect
 
 open UpdateComposition.Operators
 
@@ -134,5 +144,5 @@ let private anims size () =
         (Bounce, Animation.interrupt [0; 1; 2] 24.0)
     ]))
 
-type Ball (size: Size, p: Vector2) =
-    inherit FunctionalComponent<State, Event, BallAnim>(init size p, update, draw, anims size)
+type Ball (size: Size, dir: Direction, p: Vector2) =
+    inherit FunctionalComponent<State, Event, BallAnim>(init size dir p, update, draw, anims size)

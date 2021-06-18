@@ -1,7 +1,7 @@
 [<RequireQualifiedAccess>]
-module GameApp.PlayScreen
+module GameApp.Play.PlayScreen
 
-open GameApp.Play.Ball
+open GameApp
 open GameApp.Play.Player
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
@@ -10,6 +10,9 @@ module private Conf =
     let screenHeight = 360.0f
     let screenWidth = 640.0f
     let floorHeight = 16.0f
+    let shootingDelayInMs = 200
+    let playerWidth = 32.0f
+    let playerHeight = 32.0f
 
 type KeyboardEvent =
     | PlayerMoveLeft
@@ -18,22 +21,10 @@ type KeyboardEvent =
     | TogglePause
     | ToggleFullScreen
 
-type State =
-    { Score: int
-      Paused: bool
-      Player: Player
-      Balls: Ball list }
-
-let initialState () =
-    { Score = 0
-      Paused = false
-      Player = Player()
-      Balls = [ Ball (Big, vec2 100.0f 100.0f); Ball (Big, vec2 300.0f 100.0f); Ball (Big, vec2 500.0f 100.0f) ] }
-
-let mutable private state = initialState ()
+let mutable private state = PlayState.init ()
 
 let init () =
-    state <- initialState ()
+    state <- PlayState.init ()
 
 let private events kb =
     [ if Keyboard.movingLeft kb then PlayerMoveLeft
@@ -43,18 +34,22 @@ let private events kb =
       if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
 
 let private playingUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
+    state <- PlayState.Shooting.updateTimeSinceLastShot t state
     state.Player.Dispatch(StopMoving)
 
     for e in events kb do
         match e with
         | PlayerMoveLeft -> state.Player.Dispatch(MoveLeft)
         | PlayerMoveRight -> state.Player.Dispatch(MoveRight)
-        | PlayerShoot -> state.Player.Dispatch(Shoot)
+        | PlayerShoot -> state <- PlayState.Shooting.trigger state
         | TogglePause -> state <- { state with Paused = not state.Paused }
         | ToggleFullScreen -> g.ToggleFullScreen()
 
     state.Player.Update t
-    for ball in state.Balls do ball.Update t
+    for x in state.Projectiles do x.Update t
+    for x in state.Balls do x.Update t
+
+    state <- PlayState.Collisions.applyAll state
 
 let private pausedUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     for e in events kb do
@@ -72,7 +67,8 @@ let draw (sb: SpriteBatch) (t: GameTime) =
     sb.Draw(GameContent.textures.Backdrop, Vec2.zero, Color.White)
 
     state.Player.Draw sb
-    for ball in state.Balls do ball.Draw sb
+    for x in state.Projectiles do x.Draw sb
+    for x in state.Balls do x.Draw sb
 
     sb.Draw(GameContent.textures.Floor, vec2 0.0f (Conf.screenHeight - Conf.floorHeight), Color.White)
 
@@ -82,6 +78,7 @@ let draw (sb: SpriteBatch) (t: GameTime) =
         let height = int Conf.screenHeight
         let color = Color(Color.Black, 0.5f)
         let data = Array.create (width * height) color
+
         let overlay = new Texture2D(sb.GraphicsDevice, width, height)
         overlay.SetData(data)
 
