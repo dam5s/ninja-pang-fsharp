@@ -6,15 +6,7 @@ open GameApp
 open GameApp.Play.Ball
 open GameApp.Play.Player
 open GameApp.Play.Projectile
-open GameApp.Prelude.Collisions
 open Microsoft.Xna.Framework
-
-module private Conf =
-    let shootingDelayInMs = 200
-    let ballSpawnDelayInMs = 5_000
-    let playerWidth = 32.0f
-    let playerHeight = 32.0f
-    let screenWidth = 640.0f
 
 type State =
     { Score: int
@@ -29,8 +21,8 @@ let init (): State =
     { Score = 0
       Paused = false
       Player = Player()
-      TimeSinceLastShot = Conf.shootingDelayInMs + 1
-      TimeSinceLastBallSpawn = Conf.ballSpawnDelayInMs + 1
+      TimeSinceLastShot = Conf.Delay.shooting + 1
+      TimeSinceLastBallSpawn = Conf.Delay.ballSpawn + 1
       Projectiles = []
       Balls = [] }
 
@@ -40,10 +32,10 @@ module Behaviors =
         let playerState = state.Player.GetState ()
         let hasNotReachedMax = List.length state.Projectiles < 2
 
-        if hasNotReachedMax && state.TimeSinceLastShot > Conf.shootingDelayInMs
+        if hasNotReachedMax && state.TimeSinceLastShot > Conf.Delay.shooting
         then
-            let x = playerState.Position.X + Conf.playerWidth / 2.0f
-            let y = playerState.Position.Y + Conf.playerHeight
+            let x = playerState.Position.X + Conf.Player.width / 2.0f
+            let y = playerState.Position.Y + Conf.Player.height
 
             { state with
                 TimeSinceLastShot = 0
@@ -61,13 +53,13 @@ module Behaviors =
     let private gen = Random()
 
     let spawnBall (state: State) =
-        if state.TimeSinceLastBallSpawn >= Conf.ballSpawnDelayInMs
+        if state.TimeSinceLastBallSpawn >= Conf.Delay.ballSpawn
         then
             let direction =
                 match gen.Next() % 2 with
                 | 0 -> Left
                 | _ -> Right
-            let x = gen.Next(50, int Conf.screenWidth - 50)
+            let x = gen.Next(50, int Conf.Screen.width - 50)
             let y = gen.Next(50, 100)
 
             let newBall = Ball (Big, direction, vec2 (float32 x) (float32 y))

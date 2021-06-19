@@ -79,7 +79,6 @@ let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
         ()
 
 let draw (sb: SpriteBatch) (t: GameTime) =
-    let x = 32.0f
     let mutable y = 120.0f
 
     sb |> MenuBackground.draw
@@ -90,7 +89,6 @@ let draw (sb: SpriteBatch) (t: GameTime) =
     for e in [Play; HighScore; Exit] do
         let text = itemText e
         let selected = e = selectedItem
-        let position = vec2 x y
         y <- y + 40.0f
 
-        MenuItem.draw text selected position sb |> ignore
+        MenuItem.draw text selected y sb |> ignore

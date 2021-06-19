@@ -13,8 +13,7 @@ module MenuBackground =
 [<RequireQualifiedAccess>]
 module MenuHeader =
     let draw (text: string) (sb: SpriteBatch) =
-        sb.DrawString(GameContent.fonts.MenuHeader, text, vec2 32.0f 40.0f, Color.WhiteSmoke)
-        sb
+        Text.center(text, GameContent.fonts.MenuHeader, sb, y = 40.0f)
 
 [<RequireQualifiedAccess>]
 module MenuFooter =
@@ -24,7 +23,7 @@ module MenuFooter =
 
 [<RequireQualifiedAccess>]
 module MenuItem =
-    let draw (text: string) selected position (sb: SpriteBatch) =
+    let draw (text: string) selected y (sb: SpriteBatch) =
         let fonts = GameContent.fonts
 
         let font, color =
@@ -32,5 +31,4 @@ module MenuItem =
             then fonts.MenuItemSelected, Color.WhiteSmoke
             else fonts.MenuItemNotSelected, Color(160, 151, 1)
 
-        sb.DrawString(font, text, position, color)
-        sb
+        Text.center(text, font, sb, y, color)

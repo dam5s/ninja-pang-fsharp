@@ -6,10 +6,6 @@ open GameApp.Play.Player
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
-module private Conf =
-    let screenHeight = 360.0f
-    let floorHeight = 16.0f
-
 type KeyboardEvent =
     | PlayerMoveLeft
     | PlayerMoveRight
@@ -74,9 +70,9 @@ let draw (sb: SpriteBatch) (t: GameTime) =
     for x in state.Projectiles do x.Draw sb
     for x in state.Balls do x.Draw sb
 
-    sb.Draw(GameContent.textures.Floor, vec2 0.0f (Conf.screenHeight - Conf.floorHeight), Color.White)
+    sb.Draw(GameContent.textures.Floor, vec2 0.0f (Conf.Screen.height - Conf.Floor.height), Color.White)
 
-    HUD.draw state sb
-
-    if state.Paused
-    then HUD.drawPausedOverlay sb
+    sb
+    |> HUD.draw state
+    |> HUD.drawPausedOverlay state
+    |> ignore

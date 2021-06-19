@@ -1,7 +1,6 @@
 module GameApp.Play.Ball
 
 open GameApp
-open GameApp.Prelude.Collisions
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
@@ -24,7 +23,7 @@ type State =
     { Size: Size
       Velocity: Vector2
       Position: Vector2
-      Box: Box }
+      Box: Collision.Box }
 
 type Event =
     | None
@@ -35,10 +34,6 @@ type BallAnim =
 
 module private Conf =
     let gravity = 200.0f
-    let screenWidth = 640.0f
-    let screenHeight = 360.0f
-    let floorHeight = 16.0f
-    let floorY = screenHeight - floorHeight
 
     let private bigConfig =
         { GraphicsSize = 36.0f
@@ -70,7 +65,7 @@ let inline private boxOrigin position =
 let private init size dir position () =
     let conf = Conf.get size
     let boxSize = conf.GraphicsSize - 4.0f
-    let box = { Origin = boxOrigin position; Width = boxSize; Height = boxSize }
+    let box: Collision.Box = { Origin = boxOrigin position; Width = boxSize; Height = boxSize }
     let velocityX = match dir with | Left -> - conf.VelocityX | Right -> conf.VelocityX
 
     { Size = size
@@ -80,7 +75,7 @@ let private init size dir position () =
 
 let private bounce conf time state =
     let falling = state.Velocity.Y > 0.0f
-    let touchingFloor = state.Box.Origin.Y + state.Box.Height >= Conf.floorY
+    let touchingFloor = state.Box.Origin.Y + state.Box.Height >= Conf.Floor.y
 
     if falling && touchingFloor
     then { state with Velocity = Vec2.withY -Conf.gravity state.Velocity }, SetAnimation Bounce
@@ -90,7 +85,7 @@ let private touchWalls conf time state =
     let goingLeft = state.Velocity.X < 0.0f
     let goingRight = not goingLeft
     let touchingLeftWall = state.Box.Origin.X <= 0.0f
-    let touchingRightWall = state.Box.Origin.X + state.Box.Width >= Conf.screenWidth
+    let touchingRightWall = state.Box.Origin.X + state.Box.Width >= Conf.Screen.width
 
     let newX =
         if goingLeft && touchingLeftWall

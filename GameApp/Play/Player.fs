@@ -19,33 +19,21 @@ type Event =
     | StopMoving
     | Shoot
 
-module private Conf =
-    let horizontalVelocity = 150.0f
-    let screenHeight = 360.0f
-    let screenWidth = 640.0f
-    let floorHeight = 16.0f
-    let playerWidth = 32.0f
-    let playerHeight = 32.0f
-    let positionOverflow = 8.0f
-    let minPosition = - positionOverflow
-    let maxPosition = screenWidth - playerWidth + positionOverflow
-    let shootingDelayInMs = 200
-
 let private init () =
-    { Position = vec2 100.0f (Conf.screenHeight - Conf.floorHeight - Conf.playerHeight)
+    { Position = vec2 100.0f (Conf.Screen.height - Conf.Floor.height - Conf.Player.height)
       VelocityX = 0.0f }
 
 let private onUpdate (time: GameTime) state =
     let newX =
         state.Position.X + VelocityPerSecond.forGameTime state.VelocityX time
-        |> max Conf.minPosition
-        |> min Conf.maxPosition
+        |> max Conf.Player.minPosition
+        |> min Conf.Player.maxPosition
     { state with Position = Vec2.withX newX state.Position }, NoEffect
 
 let private update event state: State * Effect<PlayerAnim> =
     match event with
-    | Event MoveLeft -> { state with VelocityX = -Conf.horizontalVelocity }, SetAnimation RunLeft
-    | Event MoveRight -> { state with VelocityX = Conf.horizontalVelocity }, SetAnimation RunRight
+    | Event MoveLeft -> { state with VelocityX = -Conf.Player.velocity }, SetAnimation RunLeft
+    | Event MoveRight -> { state with VelocityX = Conf.Player.velocity }, SetAnimation RunRight
     | Event StopMoving -> { state with VelocityX = 0.0f }, SetAnimation Idle
     | Event Shoot -> state, SetAnimation Shooting
     | OnUpdate time -> onUpdate time state

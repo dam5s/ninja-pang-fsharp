@@ -9,12 +9,13 @@
 
   <ItemGroup>
     <Compile Include="Prelude\Prelude.fs" />
-    <Compile Include="Prelude\GameTime.fs" />
+    <Compile Include="Prelude\Conf.fs" />
     <Compile Include="Prelude\Animation.fs" />
     <Compile Include="Prelude\AnimationSet.fs" />
     <Compile Include="Prelude\Effect.fs" />
     <Compile Include="Prelude\FunctionalComponent.fs" />
-    <Compile Include="Prelude\Collisions.fs" />
+    <Compile Include="Prelude\Collision.fs" />
+    <Compile Include="Prelude\Text.fs" />
     <Compile Include="Keyboard.fs" />
     <Compile Include="GameContent.fs" />
     <Compile Include="GameState.fs" />

@@ -16,5 +16,5 @@ let draw (sb: SpriteBatch) (t: GameTime) =
 
     sb |> MenuBackground.draw
        |> MenuHeader.draw "High Score"
-       |> MenuItem.draw highScore false (vec2 32.0f 120.0f)
+       |> MenuItem.draw highScore false 120.0f
        |> ignore

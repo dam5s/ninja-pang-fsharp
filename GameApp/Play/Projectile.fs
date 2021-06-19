@@ -1,7 +1,6 @@
 module GameApp.Play.Projectile
 
 open GameApp
-open GameApp.Prelude.Collisions
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
@@ -12,7 +11,7 @@ let inline private boxOrigin (position: Vector2) =
 
 type State =
     { Position: Vector2
-      Box: Box }
+      Box: Collision.Box }
 
 type Projectile (p: Vector2) =
     inherit KillableComponent()
