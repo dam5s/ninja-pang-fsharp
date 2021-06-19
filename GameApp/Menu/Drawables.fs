@@ -26,9 +26,9 @@ module MenuItem =
     let draw (text: string) selected y (sb: SpriteBatch) =
         let fonts = GameContent.fonts
 
-        let font, color =
+        let resolvedY, font, color =
             if selected
-            then fonts.MenuItemSelected, Color.WhiteSmoke
-            else fonts.MenuItemNotSelected, Color(160, 151, 1)
+            then y - 5.0f, fonts.MenuItemSelected, Color.WhiteSmoke
+            else y, fonts.MenuItemNotSelected, Color(160, 151, 1)
 
-        Text.center(text, font, sb, y, color)
+        Text.center(text, font, sb, resolvedY, color)
