@@ -10,9 +10,9 @@ module private Conf =
     let screenWidth = 640.0f
 
 let draw (state: PlayState.State) (sb: SpriteBatch) =
-    let score = System.String.Format("{0:#,0}", state.Score)
+    let score = System.String.Format ("{0:#,0}", state.Score)
     let font = GameContent.fonts.Score
-    let scoreSize = font.MeasureString(score)
+    let scoreSize = font.MeasureString score
     let x = (Conf.screenWidth - scoreSize.X) / 2.0f
 
     sb.DrawString(font, score, vec2 x 20.0f, Color.WhiteSmoke)
@@ -25,5 +25,12 @@ let drawPausedOverlay (sb: SpriteBatch) =
 
     let overlay = new Texture2D(sb.GraphicsDevice, width, height)
     overlay.SetData(data)
-
     sb.Draw(overlay, Vec2.zero, Color.White)
+
+    let font = GameContent.fonts.MenuHeader
+    let text = "Game Paused"
+    let textSize = font.MeasureString text
+    let x = (Conf.screenWidth - textSize.X) / 2.0f
+    let y = (Conf.screenHeight - textSize.Y) / 2.0f
+
+    sb.DrawString(font, text, vec2 x y, Color.WhiteSmoke)
