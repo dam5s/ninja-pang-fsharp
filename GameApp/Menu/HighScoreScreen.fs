@@ -7,7 +7,7 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
 let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
-    if Keyboard.escape kb
+    if Keyboard.menuReturn kb
     then GameState.changeScreen GameState.MainMenu
 
 let draw (sb: SpriteBatch) (t: GameTime) =

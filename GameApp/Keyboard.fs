@@ -23,7 +23,6 @@ let private wasReleased key kb =
 let private oneWasReleased keys kb =
     keys |> List.exists (fun k -> wasReleased k kb)
 
-let escape = wasReleased Keys.Escape
 let togglePause = oneWasReleased [Keys.P; Keys.Escape]
 let toggleFullScreen kb =
     let altIsDown = oneIsDown [Keys.LeftAlt; Keys.RightAlt] kb
@@ -31,10 +30,11 @@ let toggleFullScreen kb =
 
     (altIsDown && enterWasReleased) || wasReleased Keys.F11 kb
 
-let menuSelect kb = wasReleased Keys.Enter kb || wasReleased Keys.Space kb
-let menuUp kb = wasReleased Keys.Up kb || wasReleased Keys.W kb
-let menuDown kb = wasReleased Keys.Down kb || wasReleased Keys.S kb
+let menuReturn = oneWasReleased [Keys.Escape; Keys.X; Keys.NumPad0]
+let menuEnter kb = oneWasReleased [Keys.Enter; Keys.Z] kb
+let menuUp kb = wasReleased Keys.Up kb
+let menuDown kb = wasReleased Keys.Down kb
 
-let movingLeft = oneIsDown [Keys.Left; Keys.A]
-let movingRight = oneIsDown [Keys.Right; Keys.D]
-let shooting = oneIsDown [Keys.Up; Keys.Space; Keys.W; Keys.Z; Keys.LeftControl; Keys.RightControl]
+let playerLeft = oneIsDown [Keys.Left]
+let playerRight = oneIsDown [Keys.Right]
+let playerShoot = oneIsDown [Keys.Up; Keys.Z]

@@ -19,9 +19,9 @@ let init () =
     state <- PlayState.init ()
 
 let private events kb =
-    [ if Keyboard.movingLeft kb then PlayerMoveLeft
-      if Keyboard.movingRight kb then PlayerMoveRight
-      if Keyboard.shooting kb then PlayerShoot
+    [ if Keyboard.playerLeft kb then PlayerMoveLeft
+      if Keyboard.playerRight kb then PlayerMoveRight
+      if Keyboard.playerShoot kb then PlayerShoot
       if Keyboard.togglePause kb then TogglePause
       if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
 

@@ -17,7 +17,7 @@ let private event (kb: Keyboard.State) =
     then Some ToggleFullScreen
     else
 
-    if Keyboard.menuSelect kb
+    if Keyboard.menuEnter kb
     then Some Enter
     else
 
@@ -74,7 +74,7 @@ let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
         match selectedItem with
         | Play -> GameState.changeScreen GameState.Play
         | HighScore -> GameState.changeScreen GameState.HighScore
-        | Exit -> System.Environment.Exit 0
+        | Exit -> exit 0
     | None ->
         ()
 
