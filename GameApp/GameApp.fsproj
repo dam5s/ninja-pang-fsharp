@@ -16,6 +16,7 @@
     <Compile Include="Prelude\FunctionalComponent.fs" />
     <Compile Include="Prelude\Collision.fs" />
     <Compile Include="Prelude\Text.fs" />
+    <Compile Include="Prelude\Drawing.fs" />
     <Compile Include="Keyboard.fs" />
     <Compile Include="GameContent.fs" />
     <Compile Include="GameState.fs" />

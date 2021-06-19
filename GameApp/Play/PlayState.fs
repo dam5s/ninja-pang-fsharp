@@ -155,8 +155,12 @@ module Collisions =
         let energyLoss =
             collidePlayerWith remainingBalls state
 
+        let newEnergy =
+            state.Energy + energyGain - energyLoss
+            |> within 0 100
+
         { state with
             Projectiles = List.filter (fun x -> x.Alive()) state.Projectiles
             Balls = remainingBalls @ newBalls
             Score = state.Score + points
-            Energy = state.Energy + energyGain - energyLoss }
+            Energy = newEnergy }

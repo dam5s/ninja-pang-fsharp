@@ -5,6 +5,7 @@ open Microsoft.Xna.Framework
 
 let inline flooredInt a = int (floor a)
 let inline vec2 x y = Vector2 (x, y)
+let inline within minValue maxValue x = x |> max minValue |> min maxValue
 
 [<RequireQualifiedAccess>]
 module Vec2 =
