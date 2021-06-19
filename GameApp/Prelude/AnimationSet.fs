@@ -71,7 +71,7 @@ type AnimationSet<'T when 'T : comparison>
     member this.Update (time: GameTime) =
         state <- state |> updateMsSinceLastFrameChange time |> updateFrame
 
-    member this.Draw (sb: SpriteBatch, location: Vector2) =
+    member this.Draw (sb: SpriteBatch, location: Vector2, ?mask: Color) =
         let frame =
             state.CurrentAnimation.Frames
             |> List.tryItem state.FrameIndex
@@ -81,8 +81,9 @@ type AnimationSet<'T when 'T : comparison>
         let column = frame % columns
 
         let source = Rectangle(width * column, height * row, width, height);
-        let destination = Rectangle(int location.X, int location.Y, width, height);
+        let destination = Rectangle(int location.X, int location.Y, width, height)
+        let resolvedMask = defaultArg mask Color.White
 
         if state.CurrentAnimation.Mirrored
-        then sb.Draw (texture, destination, source, Color.White, 0.0f, Vec2.zero, SpriteEffects.FlipHorizontally, 0.0f)
-        else sb.Draw (texture, destination, source, Color.White)
+        then sb.Draw (texture, destination, source, resolvedMask, 0.0f, Vec2.zero, SpriteEffects.FlipHorizontally, 0.0f)
+        else sb.Draw (texture, destination, source, resolvedMask)

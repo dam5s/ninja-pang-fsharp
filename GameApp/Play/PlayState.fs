@@ -3,6 +3,7 @@ module GameApp.Play.PlayState
 
 open System
 open GameApp
+open GameApp.Play
 open GameApp.Play.Ball
 open GameApp.Play.Player
 open GameApp.Play.Projectile
@@ -24,7 +25,7 @@ let init (): State =
       Player = Player()
       Energy = 100
       TimeSinceLastShot = Conf.Delay.shooting + 1
-      TimeSinceLastBallSpawn = Conf.Delay.ballSpawn + 1
+      TimeSinceLastBallSpawn = Conf.Delay.initialBallSpawn + 1
       Projectiles = []
       Balls = [] }
 
@@ -54,8 +55,13 @@ module Behaviors =
 
     let private gen = Random()
 
+    let inline private spawnDelay (state: State) =
+        let levels = state.Score / 10_000
+        let levelDelay = Conf.Delay.initialBallSpawn - (levels * 500)
+        max Conf.Delay.minBallSpawn levelDelay
+
     let spawnBall (state: State) =
-        if state.TimeSinceLastBallSpawn >= Conf.Delay.ballSpawn
+        if state.TimeSinceLastBallSpawn >= spawnDelay state
         then
             let direction =
                 match gen.Next() % 2 with
@@ -109,6 +115,24 @@ module Collisions =
         then List.collect (collideProjectileWithOneBall p projectileBox) balls
         else []
 
+    let private collidePlayerWith (balls: Ball list) (s: State) =
+        let player = s.Player
+        let playerBox = player.GetState().Box
+
+        if player.Invulnerable()
+        then
+            0
+        else
+            let ballsTouchingPlayer =
+                balls
+                |> List.filter (fun b -> Collision.aabbCheck (b.GetState()).Box playerBox)
+                |> List.length
+
+            if ballsTouchingPlayer > 0
+            then player.Dispatch(Hit)
+
+            ballsTouchingPlayer * Conf.Energy.lossPerHit
+
     let inline private ballIsAlive (b: Ball) = b.Alive()
     let inline private ballPoints (b: Ball) =
         match b.GetState().Size with
@@ -122,7 +146,17 @@ module Collisions =
         let remainingBalls, destroyedBalls = List.partition ballIsAlive state.Balls
         let points = List.sumBy ballPoints destroyedBalls
 
+        let energyGain =
+            destroyedBalls
+            |> List.filter (fun b -> b.GetState().Size = Small)
+            |> List.length
+            |> (*) Conf.Energy.gainPerSmallBall
+
+        let energyLoss =
+            collidePlayerWith remainingBalls state
+
         { state with
             Projectiles = List.filter (fun x -> x.Alive()) state.Projectiles
             Balls = remainingBalls @ newBalls
-            Score = state.Score + points }
+            Score = state.Score + points
+            Energy = state.Energy + energyGain - energyLoss }

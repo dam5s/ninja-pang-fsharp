@@ -51,6 +51,9 @@ let private playingUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: Ga
     state <- PlayState.Collisions.applyAll state
     state <- PlayState.Behaviors.spawnBall state
 
+    if state.Energy <= 0
+    then Effect.play GameContent.sounds.GameOver
+
 let private pausedUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     for e in events kb do
         match e with
@@ -61,7 +64,13 @@ let private pausedUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: Gam
 let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     if state.Paused
     then pausedUpdate kb g t
-    else playingUpdate kb g t
+    else
+
+    if state.Energy <= 0
+    then () // game over
+    else
+
+    playingUpdate kb g t
 
 let draw (sb: SpriteBatch) (t: GameTime) =
     sb.Draw(GameContent.textures.Backdrop, Vec2.zero, Color.White)
@@ -74,5 +83,6 @@ let draw (sb: SpriteBatch) (t: GameTime) =
 
     sb
     |> HUD.draw state
-    |> HUD.drawPausedOverlay state
+    |> HUD.drawPaused state
+    |> HUD.drawGameOver state
     |> ignore

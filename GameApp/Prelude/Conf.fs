@@ -15,7 +15,8 @@ module Floor =
 module Delay =
     // All delays are in milliseconds
     let shooting = 200
-    let ballSpawn = 5_000
+    let initialBallSpawn = 5_000
+    let minBallSpawn = 2_000
 
 [<RequireQualifiedAccess>]
 module Player =
@@ -25,3 +26,8 @@ module Player =
     let positionOverflow = 8.0f
     let minPosition = - positionOverflow
     let maxPosition = Screen.width - width + positionOverflow
+
+[<RequireQualifiedAccess>]
+module Energy =
+    let lossPerHit = 25
+    let gainPerSmallBall = 2
