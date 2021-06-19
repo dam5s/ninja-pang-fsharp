@@ -30,22 +30,30 @@ let private events kb =
       if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
 
 let private playingUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
-    state <- PlayState.Shooting.updateTimeSinceLastShot t state
+    state <- PlayState.Behaviors.updateTimers t state
     state.Player.Dispatch(StopMoving)
 
     for e in events kb do
         match e with
         | PlayerMoveLeft -> state.Player.Dispatch(MoveLeft)
         | PlayerMoveRight -> state.Player.Dispatch(MoveRight)
-        | PlayerShoot -> state <- PlayState.Shooting.trigger state
+        | PlayerShoot -> state <- PlayState.Behaviors.shoot state
         | TogglePause -> state <- { state with Paused = not state.Paused }
         | ToggleFullScreen -> g.ToggleFullScreen()
+
+    if state.TimeSinceLastShot = 0
+    then Effect.play GameContent.sounds.Shoot
+
+    // Display shooting animation for 100 ms
+    if state.TimeSinceLastShot <= 100
+    then state.Player.Dispatch(Shoot)
 
     state.Player.Update t
     for x in state.Projectiles do x.Update t
     for x in state.Balls do x.Update t
 
     state <- PlayState.Collisions.applyAll state
+    state <- PlayState.Behaviors.spawnBall state
 
 let private pausedUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     for e in events kb do

@@ -1,6 +1,7 @@
 [<RequireQualifiedAccess>]
 module GameApp.Play.PlayState
 
+open System
 open GameApp
 open GameApp.Play.Ball
 open GameApp.Play.Player
@@ -10,13 +11,16 @@ open Microsoft.Xna.Framework
 
 module private Conf =
     let shootingDelayInMs = 200
+    let ballSpawnDelayInMs = 5_000
     let playerWidth = 32.0f
     let playerHeight = 32.0f
+    let screenWidth = 640.0f
 
 type State =
     { Score: int
       Paused: bool
       Player: Player
+      TimeSinceLastBallSpawn: int
       TimeSinceLastShot: int
       Projectiles: Projectile list
       Balls: Ball list }
@@ -26,14 +30,13 @@ let init (): State =
       Paused = false
       Player = Player()
       TimeSinceLastShot = Conf.shootingDelayInMs + 1
+      TimeSinceLastBallSpawn = Conf.ballSpawnDelayInMs + 1
       Projectiles = []
-      Balls = [ Ball (Big, Right, vec2 100.0f 100.0f)
-                Ball (Big, Left, vec2 300.0f 60.0f)
-                Ball (Big, Right, vec2 500.0f 80.0f) ] }
+      Balls = [] }
 
 [<RequireQualifiedAccess>]
-module Shooting =
-    let trigger state =
+module Behaviors =
+    let shoot state =
         let playerState = state.Player.GetState ()
         let hasNotReachedMax = List.length state.Projectiles < 2
 
@@ -42,22 +45,38 @@ module Shooting =
             let x = playerState.Position.X + Conf.playerWidth / 2.0f
             let y = playerState.Position.Y + Conf.playerHeight
 
-            Effect.play GameContent.sounds.Shoot
-
             { state with
                 TimeSinceLastShot = 0
                 Projectiles = Projectile (vec2 x y) :: state.Projectiles }
         else
             state
 
-    let updateTimeSinceLastShot (time: GameTime) (state: State) =
+    let updateTimers (time: GameTime) (state: State) =
         let elapsed = time.ElapsedGameTime.Milliseconds
-        let newState = { state with TimeSinceLastShot = state.TimeSinceLastShot + elapsed }
 
-        if newState.TimeSinceLastShot <= 100
-        then state.Player.Dispatch(Shoot)
+        { state with
+            TimeSinceLastBallSpawn = state.TimeSinceLastBallSpawn + elapsed
+            TimeSinceLastShot = state.TimeSinceLastShot + elapsed }
 
-        newState
+    let private gen = Random()
+
+    let spawnBall (state: State) =
+        if state.TimeSinceLastBallSpawn >= Conf.ballSpawnDelayInMs
+        then
+            let direction =
+                match gen.Next() % 2 with
+                | 0 -> Left
+                | _ -> Right
+            let x = gen.Next(50, int Conf.screenWidth - 50)
+            let y = gen.Next(50, 100)
+
+            let newBall = Ball (Big, direction, vec2 (float32 x) (float32 y))
+
+            { state with
+                TimeSinceLastBallSpawn = 0
+                Balls = newBall :: state.Balls }
+        else
+            state
 
 [<RequireQualifiedAccess>]
 module Collisions =
@@ -74,29 +93,27 @@ module Collisions =
               Ball(Small, Right, vec2 (pos.X + 10.0f) pos.Y) ]
         | Small -> []
 
-    let private collideProjectileWithBalls (balls: Ball list) (p: Projectile) =
+    let private collideProjectileWithOneBall (p: Projectile) projectileBox (b: Ball) =
+        let ballState = b.GetState()
+
+        if b.Alive() && p.Alive() && Collision.aabbCheck projectileBox ballState.Box
+        then
+            b.Kill()
+            p.Kill()
+            Effect.play GameContent.sounds.Pop
+            splitBall ballState
+        else
+            []
+
+    let private collideProjectileWithAllBalls (balls: Ball list) (p: Projectile) =
         let projectileBox = p.GetState().Box
 
         if projectileBox.Origin.Y <= 0.0f
         then p.Kill()
 
         if p.Alive()
-        then
-            balls
-            |> List.collect (fun b ->
-                let ballState = b.GetState()
-
-                if b.Alive() && p.Alive() && Collision.aabbCheck projectileBox ballState.Box
-                then
-                    b.Kill()
-                    p.Kill()
-                    Effect.play GameContent.sounds.Pop
-                    splitBall ballState
-                else
-                    []
-            )
-        else
-            []
+        then List.collect (collideProjectileWithOneBall p projectileBox) balls
+        else []
 
     let inline private ballIsAlive (b: Ball) = b.Alive()
     let inline private ballPoints (b: Ball) =
@@ -106,12 +123,10 @@ module Collisions =
         | Small -> 200
 
     let applyAll (state: State) =
-        let newBalls =
-            state.Projectiles
-            |> List.collect (collideProjectileWithBalls state.Balls)
+        let newBalls = List.collect (collideProjectileWithAllBalls state.Balls) state.Projectiles
 
         let remainingBalls, destroyedBalls = List.partition ballIsAlive state.Balls
-        let points = destroyedBalls |> List.sumBy ballPoints
+        let points = List.sumBy ballPoints destroyedBalls
 
         { state with
             Projectiles = List.filter (fun x -> x.Alive()) state.Projectiles
