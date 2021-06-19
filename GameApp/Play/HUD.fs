@@ -6,9 +6,16 @@ open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
 let draw (state: PlayState.State) (sb: SpriteBatch) =
-    let score = System.String.Format ("{0:#,0}", state.Score)
     let font = GameContent.fonts.Score
-    Text.center(score, font, sb, y = 20.0f)
+    let topLineY = 20.0f
+
+    let score = System.String.Format ("{0:#,0}", state.Score)
+    let energy = System.String.Format ("{0:#,0}", state.Energy)
+
+    Text(sb)
+        .Center(score, font, y = topLineY)
+        .Default(energy, font, x = 32.0f, y = topLineY)
+        .Done
 
 let drawPausedOverlay (state: PlayState.State) (sb: SpriteBatch) =
     if state.Paused
@@ -24,6 +31,7 @@ let drawPausedOverlay (state: PlayState.State) (sb: SpriteBatch) =
 
         let text = "Game Paused"
         let font = GameContent.fonts.MenuHeader
-        Text.center(text, font, sb)
+
+        Text(sb).Center(text, font).Done
     else
         sb

@@ -12,6 +12,7 @@ type State =
     { Score: int
       Paused: bool
       Player: Player
+      Energy: int
       TimeSinceLastBallSpawn: int
       TimeSinceLastShot: int
       Projectiles: Projectile list
@@ -21,6 +22,7 @@ let init (): State =
     { Score = 0
       Paused = false
       Player = Player()
+      Energy = 100
       TimeSinceLastShot = Conf.Delay.shooting + 1
       TimeSinceLastBallSpawn = Conf.Delay.ballSpawn + 1
       Projectiles = []
