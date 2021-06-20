@@ -2,75 +2,94 @@
 module GameApp.Play.PlayScreen
 
 open GameApp
+open GameApp.Play.PlayState
 open GameApp.Play.Player
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
-type KeyboardEvent =
-    | PlayerMoveLeft
-    | PlayerMoveRight
-    | PlayerShoot
-    | TogglePause
-    | ToggleFullScreen
-
-let mutable private state = PlayState.init ()
+let mutable private state = State.init ()
 
 let init () =
-    state <- PlayState.init ()
+    state <- State.init ()
 
-let private events kb =
-    [ if Keyboard.playerLeft kb then PlayerMoveLeft
-      if Keyboard.playerRight kb then PlayerMoveRight
-      if Keyboard.playerShoot kb then PlayerShoot
-      if Keyboard.togglePause kb then TogglePause
-      if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
+module Playing =
+    type KeyboardEvent =
+        | PlayerMoveLeft
+        | PlayerMoveRight
+        | PlayerShoot
+        | TogglePause
+        | ToggleFullScreen
 
-let private playingUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
-    state <- PlayState.Behaviors.updateTimers t state
-    state.Player.Dispatch(StopMoving)
+    let private events kb =
+        [ if Keyboard.playerLeft kb then PlayerMoveLeft
+          if Keyboard.playerRight kb then PlayerMoveRight
+          if Keyboard.playerShoot kb then PlayerShoot
+          if Keyboard.pause kb then TogglePause
+          if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
 
-    for e in events kb do
-        match e with
-        | PlayerMoveLeft -> state.Player.Dispatch(MoveLeft)
-        | PlayerMoveRight -> state.Player.Dispatch(MoveRight)
-        | PlayerShoot -> state <- PlayState.Behaviors.shoot state
-        | TogglePause -> state <- { state with Paused = not state.Paused }
-        | ToggleFullScreen -> g.ToggleFullScreen()
+    let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
+        state <- State.updateTimers t state
+        state.Player.Dispatch(StopMoving)
 
-    if state.TimeSinceLastShot = 0
-    then Effect.play GameContent.sounds.Shoot
+        for e in events kb do
+            match e with
+            | PlayerMoveLeft -> state.Player.Dispatch(MoveLeft)
+            | PlayerMoveRight -> state.Player.Dispatch(MoveRight)
+            | PlayerShoot -> state <- State.shoot state
+            | TogglePause -> state <- State.pause state
+            | ToggleFullScreen -> g.ToggleFullScreen()
 
-    // Display shooting animation for 100 ms
-    if state.TimeSinceLastShot <= 100
-    then state.Player.Dispatch(Shoot)
+        if state.TimeSinceLastShot = 0
+        then Effect.play GameContent.sounds.Shoot
 
-    state.Player.Update t
-    for x in state.Projectiles do x.Update t
-    for x in state.Balls do x.Update t
+        // Display shooting animation for 100 ms
+        if state.TimeSinceLastShot <= 100
+        then state.Player.Dispatch(Shoot)
 
-    state <- PlayState.Collisions.applyAll state
-    state <- PlayState.Behaviors.spawnBall state
+        state.Player.Update t
+        for x in state.Projectiles do x.Update t
+        for x in state.Balls do x.Update t
 
-    if state.Energy <= 0
-    then Effect.play GameContent.sounds.GameOver
+        state <- Collisions.applyAll state
+        state <- State.spawnBall state
 
-let private pausedUpdate (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
-    for e in events kb do
-        match e with
-        | TogglePause -> state <- { state with Paused = not state.Paused }
-        | ToggleFullScreen -> g.ToggleFullScreen()
-        | _ -> () // do nothing while paused
+        if State.isGameOver state
+        then Effect.play GameContent.sounds.GameOver
+
+module Paused =
+    type private KeyboardEvent =
+        | MenuUp
+        | MenuDown
+        | MenuEnter
+        | MenuReturn
+        | ToggleFullScreen
+
+    let private events kb =
+        [ if Keyboard.menuUp kb then MenuUp
+          if Keyboard.menuDown kb then MenuDown
+          if Keyboard.menuEnter kb then MenuEnter
+          if Keyboard.menuReturn kb then MenuReturn
+          if Keyboard.toggleFullScreen kb then ToggleFullScreen ]
+
+    let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
+        for e in events kb do
+            match e with
+            | MenuUp -> state <- State.pauseMenuUp state
+            | MenuDown -> state <- State.pauseMenuDown state
+            | MenuEnter -> state <- State.pauseMenuEnter state
+            | MenuReturn -> state <- { state with Paused = not state.Paused }
+            | ToggleFullScreen -> g.ToggleFullScreen()
 
 let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     if state.Paused
-    then pausedUpdate kb g t
+    then Paused.update kb g t
     else
 
-    if state.Energy <= 0
+    if State.isGameOver state
     then () // game over
     else
 
-    playingUpdate kb g t
+    Playing.update kb g t
 
 let draw (sb: SpriteBatch) (t: GameTime) =
     sb.Draw(GameContent.textures.Backdrop, Vec2.zero, Color.White)

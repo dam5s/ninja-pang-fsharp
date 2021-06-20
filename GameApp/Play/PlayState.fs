@@ -1,4 +1,3 @@
-[<RequireQualifiedAccess>]
 module GameApp.Play.PlayState
 
 open System
@@ -9,9 +8,15 @@ open GameApp.Play.Player
 open GameApp.Play.Projectile
 open Microsoft.Xna.Framework
 
+type PauseMenuItem =
+    | Continue
+    | MainMenuExit
+    | SystemExit
+
 type State =
     { Score: int
       Paused: bool
+      SelectedPauseMenuItem: PauseMenuItem
       Player: Player
       Energy: int
       TimeSinceLastBallSpawn: int
@@ -19,18 +24,50 @@ type State =
       Projectiles: Projectile list
       Balls: Ball list }
 
-let init (): State =
-    { Score = 0
-      Paused = false
-      Player = Player()
-      Energy = 100
-      TimeSinceLastShot = Conf.Delay.shooting + 1
-      TimeSinceLastBallSpawn = Conf.Delay.initialBallSpawn + 1
-      Projectiles = []
-      Balls = [] }
-
 [<RequireQualifiedAccess>]
-module Behaviors =
+module State =
+
+    let init (): State =
+        { Score = 0
+          Paused = false
+          SelectedPauseMenuItem = Continue
+          Player = Player ()
+          Energy = 100
+          TimeSinceLastShot = Conf.Delay.shooting + 1
+          TimeSinceLastBallSpawn = Conf.Delay.initialBallSpawn + 1
+          Projectiles = []
+          Balls = [] }
+
+    let isGameOver s =
+        s.Energy <= 0
+
+    let pause s =
+        { s with
+            Paused = true
+            SelectedPauseMenuItem = Continue }
+
+    let pauseMenuUp s =
+        let newSelected =
+            match s.SelectedPauseMenuItem with
+            | Continue -> SystemExit
+            | MainMenuExit -> Continue
+            | SystemExit -> MainMenuExit
+        { s with SelectedPauseMenuItem = newSelected }
+
+    let pauseMenuDown s =
+        let newSelected =
+            match s.SelectedPauseMenuItem with
+            | Continue -> MainMenuExit
+            | MainMenuExit -> SystemExit
+            | SystemExit -> Continue
+        { s with SelectedPauseMenuItem = newSelected }
+
+    let pauseMenuEnter s =
+        match s.SelectedPauseMenuItem with
+        | Continue -> { s with Paused = false }
+        | MainMenuExit -> GameState.changeScreen GameState.MainMenu; s
+        | SystemExit -> exit 0
+
     let shoot state =
         let playerState = state.Player.GetState ()
         let hasNotReachedMax = List.length state.Projectiles < 2

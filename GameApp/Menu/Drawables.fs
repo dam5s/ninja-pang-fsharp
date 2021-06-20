@@ -40,3 +40,12 @@ module MenuItem =
         Text(sb)
             .Center(text, font, resolvedY, color)
             .Done
+
+    let drawAll (items: (string * 'a) list) (selected: 'a) (sb: SpriteBatch) =
+        let mutable y = 120.0f
+
+        for text, item in items do
+            draw text (item = selected) y sb |> ignore
+            y <- y + 40.0f
+
+        sb

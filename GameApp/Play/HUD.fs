@@ -2,6 +2,8 @@
 module GameApp.Play.HUD
 
 open GameApp
+open GameApp.Play.PlayState
+open GameApp.Menu.Drawables
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 
@@ -34,7 +36,7 @@ module EnergyBar =
         |> drawBorder
         |> fillBar energy
 
-let draw (state: PlayState.State) (sb: SpriteBatch) =
+let draw (state: State) (sb: SpriteBatch) =
     let font = GameContent.fonts.Score
     let topLineY = 14.0f
 
@@ -50,15 +52,23 @@ let inline private drawOverlay (sb: SpriteBatch) =
 
     Draw.rectangle 0 0 width height color sb |> ignore
 
-let drawPaused (state: PlayState.State) (sb: SpriteBatch) =
+let private pausedMenuItems =
+    [ ("Continue", Continue)
+      ("Exit to Main Menu", MainMenuExit)
+      ("Exit to System", SystemExit) ]
+
+let drawPaused (state: State) (sb: SpriteBatch) =
     if state.Paused
     then
         drawOverlay sb
-        Text(sb).Center("Game Paused", GameContent.fonts.MenuHeader).Done
+
+        sb
+        |> MenuHeader.draw "Paused"
+        |> MenuItem.drawAll pausedMenuItems state.SelectedPauseMenuItem
     else
         sb
 
-let drawGameOver (state: PlayState.State) (sb: SpriteBatch) =
+let drawGameOver (state: State) (sb: SpriteBatch) =
     if state.Energy <= 0
     then
         drawOverlay sb

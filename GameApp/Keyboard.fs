@@ -23,7 +23,7 @@ let private wasReleased key kb =
 let private oneWasReleased keys kb =
     keys |> List.exists (fun k -> wasReleased k kb)
 
-let togglePause = oneWasReleased [Keys.P; Keys.Escape]
+let pause = oneWasReleased [Keys.P; Keys.Escape]
 let toggleFullScreen kb =
     let altIsDown = oneIsDown [Keys.LeftAlt; Keys.RightAlt] kb
     let enterWasReleased = wasReleased Keys.Enter kb

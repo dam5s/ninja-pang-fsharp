@@ -39,12 +39,6 @@ type Item =
 let mutable selectedItem =
     Play
 
-let private itemText item =
-    match item with
-    | Play -> "Play"
-    | HighScore -> "High Score"
-    | Exit -> "Exit"
-
 let private up () =
     selectedItem <-
         match selectedItem with
@@ -78,17 +72,14 @@ let update (kb: Keyboard.State) (g: GraphicsDeviceManager) (t: GameTime) =
     | None ->
         ()
 
-let draw (sb: SpriteBatch) (t: GameTime) =
-    let mutable y = 120.0f
+let private menuItems =
+    [ ("Play", Play)
+      ("HighScore", HighScore)
+      ("Exit", Exit) ]
 
+let draw (sb: SpriteBatch) (t: GameTime) =
     sb |> MenuBackground.draw
        |> MenuHeader.draw "Ninja Pang"
        |> MenuFooter.draw
+       |> MenuItem.drawAll menuItems selectedItem
        |> ignore
-
-    for e in [Play; HighScore; Exit] do
-        let text = itemText e
-        let selected = e = selectedItem
-        y <- y + 40.0f
-
-        MenuItem.draw text selected y sb |> ignore
